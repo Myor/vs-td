@@ -18,28 +18,22 @@ var joinButton = document.querySelector("button#ws-join");
 document.querySelector('button#sendButton').onclick = sendData;
 document.querySelector('button#closeButton').onclick = closeAll;
 
-joinButton.onclick = joinRoom;
-
-function joinRoom() {
+joinButton.onclick = function () {
     joinButton.disabled = true;
-    
-    var roomid = "123";
+    joinRoom("123");
+};
 
-    var url = new URL("join/" + roomid, location.href);
+function joinRoom(id) {
+
+    var url = new URL("join/" + id, location.href);
     url.protocol = "ws:";
 
     ws = new WebSocket(url.toString());
 
     ws.onmessage = onSignalMessage;
-    ws.onclose = closeAll;
+    ws.onclose = forceCloseAll;
 
     console.log("Created Websocket");
-}
-
-function sendSignal(obj) {
-    console.log("WebSocket sending", obj.action);
-
-    ws.send(JSON.stringify(obj));
 }
 
 function onSignalMessage(event) {
@@ -66,23 +60,33 @@ function onSignalMessage(event) {
         } else if (action === "ice-candidate") {
             handleIceCandidate(msg);
         } else {
-            //?
+            console.log("Unbekannte Signal Message");
         }
 
     } catch (err) {
-        handleError(err);
+        forceCloseAll(err);
     }
+}
+function sendSignal(obj) {
+    if (ws) {
+        console.log("WebSocket sending", obj.action);
+        ws.send(JSON.stringify(obj));
+    }
+}
+
+function createPeerConnection() {
+    peerConnection = new RTCPeerConnection(configuration);
+    peerConnection.onicecandidate = iceCandidateCallback;
 }
 
 function sendOffer() {
 
-    peerConnection = new RTCPeerConnection(null);
-    peerConnection.onicecandidate = iceCallback;
+    createPeerConnection();
 
     dataChannel = peerConnection.createDataChannel("dataChannel");
     dataChannel.onmessage = onMessageCallback;
     dataChannel.onopen = dataChannelOpen;
-    dataChannel.onclose = closeAll;
+    dataChannel.onclose = forceCloseAll;
 
     console.log("Created peer connection & data channel");
 
@@ -95,15 +99,14 @@ function sendOffer() {
             sdp: peerConnection.localDescription
         });
 
-    }).catch(handleError);
+    }).catch(forceCloseAll);
 }
 
 function handleOffer(msg) {
 
     var sdp = new RTCSessionDescription(msg.sdp);
 
-    peerConnection = new RTCPeerConnection(null);
-    peerConnection.onicecandidate = iceCallback;
+    createPeerConnection();
 
     peerConnection.ondatachannel = receiveChannelCallback;
     console.log("Created peer connection");
@@ -119,14 +122,40 @@ function handleOffer(msg) {
             sdp: peerConnection.localDescription
         });
 
-    }).catch(handleError);
+    }).catch(forceCloseAll);
 }
 
 function handleAnswer(msg) {
 
     var sdp = new RTCSessionDescription(msg.sdp);
+    peerConnection.setRemoteDescription(sdp).catch(forceCloseAll);
+}
 
-    peerConnection.setRemoteDescription(sdp).catch(handleError);
+function iceCandidateCallback(event) {
+    if (event.candidate) {
+        sendSignal({
+            action: "ice-candidate",
+            candidate: event.candidate
+        });
+    } else {
+        console.log("ICE Done");
+    }
+}
+
+function handleIceCandidate(msg) {
+    peerConnection.addIceCandidate(new RTCIceCandidate(msg.candidate)).catch(forceCloseAll);
+}
+
+function receiveChannelCallback(event) {
+    console.log("Got data channel");
+    dataChannel = event.channel;
+    dataChannel.onmessage = onMessageCallback;
+    dataChannel.onopen = dataChannelOpen;
+    dataChannel.onclose = forceCloseAll;
+}
+
+function onMessageCallback(event) {
+    console.log("WebRTC Received", event.data);
 }
 
 function sendData() {
@@ -135,45 +164,18 @@ function sendData() {
     console.log("WebRTC Sent Data", data);
 }
 
-function iceCallback(event) {
-    if (event.candidate) {
-        sendSignal({
-            action: "ice-candidate",
-            candidate: event.candidate
-        });
-    }
-}
-
-function handleIceCandidate(msg) {
-    peerConnection.addIceCandidate(new RTCIceCandidate(msg.candidate)).catch(handleError);
-}
-
-function receiveChannelCallback(event) {
-    console.log("Got data channel");
-    dataChannel = event.channel;
-    dataChannel.onmessage = onMessageCallback;
-    dataChannel.onopen = dataChannelOpen;
-    dataChannel.onclose = closeAll;
-}
-
-function onMessageCallback(event) {
-    console.log("WebRTC Received", event.data);
-}
-
 function dataChannelOpen() {
+    ws.onmessage = null;
     ws.onclose = null;
     ws.close();
+    ws = null;
     // finish
-    console.log("DONE");
+    console.log("DONE, Start Game...");
 }
 
-function handleError(err) {
-    console.error("Error", err);
-    forceCloseAll();
-}
-
-function forceCloseAll() {
-
+function forceCloseAll(err) {
+    console.log("Verbindung wurde beendet");
+    if (err) console.error(err);
     //...
     closeAll();
 }
@@ -203,6 +205,6 @@ function closeAll() {
     ws = null;
     dataChannel = null;
     peerConnection = null;
-    
+
     joinButton.disabled = false;
 }
