@@ -1,11 +1,11 @@
 package de.hsos.vs.ws;
 
 import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.json.Json;
-import javax.json.JsonObject;
 import javax.websocket.CloseReason;
+import javax.websocket.CloseReason.CloseCodes;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -14,65 +14,53 @@ import javax.websocket.Session;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 
-@ServerEndpoint("/join/{room}")
+@ServerEndpoint("/join/{lobby}")
 public class SignalEndpoint {
 
     static final Logger logger = Logger.getLogger(SignalEndpoint.class.getName());
 
-    static Session p1;
-    static Session p2;
+    static ConcurrentHashMap<String, Lobby> lobbys = new ConcurrentHashMap<>();
 
     @OnOpen
-    public void onOpen(Session session, @PathParam("room") String room) throws IOException {
-        System.out.println("onOpen()");
-        System.out.println("Room:" + room);
+    public void onOpen(Session session, @PathParam("lobby") String lobby) throws IOException {
+        logger.log(Level.INFO, "onOpen lobby {0}", lobby);
 
-        if (p1 == null) {
-            System.out.println("player1");
-            p1 = session;
+        Lobby l = lobbys.get(lobby);
+        if (l == null) {
+            // Lobby erstellen
+            lobbys.put(lobby, new Lobby(session));
+        } else if (l.canJoin()) {
+            // Lobby beitreten
+            l.join(session);
         } else {
-            System.out.println("player2");
-            p2 = session;
-            p1.getAsyncRemote().sendText(buildJoinRequest());
+            // Lobby voll
+            session.close(new CloseReason(CloseCodes.VIOLATED_POLICY, null));
         }
 
-        // room prüfen
-        if (false) {
-            session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, null));
-        }
     }
 
     @OnMessage
-    public void onMessage(String message, Session session) {
-        System.out.println("onMessage()");
-        System.out.println(message);
-
-        if (p1 == session) {
-            p2.getAsyncRemote().sendText(message);
-        } else {
-            p1.getAsyncRemote().sendText(message);
-        }
+    public void onMessage(String text, Session session, @PathParam("lobby") String lobby) {
+        logger.log(Level.INFO, "onMessage lobby {0}", lobby);
+        // Message zum Peer senden
+        lobbys.get(lobby).signal(session, text);
 
     }
 
     @OnClose
-    public void onClose() {
-        System.out.println("onClose()");
-        // aufräumen
-        p1 = null;
-        p2 = null;
+    public void onClose(Session session, @PathParam("lobby") String lobby) throws IOException {
+        logger.log(Level.INFO, "onClose lobby {0}", lobby);
+
+        Lobby l = lobbys.get(lobby);
+        if (l != null && l.quit(session)) {
+            lobbys.remove(lobby);
+        }
+
     }
 
     @OnError
     public void onError(Throwable t) {
         logger.log(Level.SEVERE, "Error in WS Endpoint", t);
-    }
-
-    private String buildJoinRequest() {
-        JsonObject obj = Json.createObjectBuilder()
-                .add("action", "join-request")
-                .add("profile", "name etc.").build();
-        return obj.toString();
     }
 
 }

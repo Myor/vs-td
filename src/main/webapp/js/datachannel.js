@@ -12,18 +12,19 @@ var ws;
 var peerConnection;
 var dataChannel;
 
-var dataChannelSend = document.querySelector('textarea#dataChannelSend');
-var joinButton = document.querySelector("button#ws-join");
+var dataChannelSend = document.querySelector("textarea#dataChannelSend");
+var lobbyId = document.querySelector("input#lobby-id");
+var joinButton = document.querySelector("button#lobby-join");
 
-document.querySelector('button#sendButton').onclick = sendData;
-document.querySelector('button#closeButton').onclick = closeAll;
+document.querySelector("button#sendButton").onclick = sendData;
+document.querySelector("button#lobby-quit").onclick = closeAll;
+
 
 joinButton.onclick = function () {
-    joinButton.disabled = true;
-    joinRoom("123");
+    joinLobby(lobbyId.value);
 };
 
-function joinRoom(id) {
+function joinLobby(id) {
 
     var url = new URL("join/" + id, location.href);
     url.protocol = "ws:";
@@ -52,6 +53,7 @@ function onSignalMessage(event) {
                 sendOffer();
             } else {
                 console.log("quit");
+                closeAll();
             }
         } else if (action === "sdp-offer") {
             handleOffer(msg);
@@ -206,5 +208,4 @@ function closeAll() {
     dataChannel = null;
     peerConnection = null;
 
-    joinButton.disabled = false;
 }
