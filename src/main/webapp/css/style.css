@@ -136,12 +136,12 @@ button:active {
 }
 #gameLife {
     top: 10px;
-    background-position-y: 0;
+    background-position: 0px 0px;
 }
 #gameCash {
     top: 10px;
     right: 10px;
-    background-position-y: -16px;
+    background-position: 0px -16px;
 }
 #gameRound {
     top: 10px;

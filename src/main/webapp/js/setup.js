@@ -25,6 +25,9 @@ var particleConOptions = {
     alpha: false
 };
 
+// Ungenutzte Plugins
+delete PIXI.WebGLRenderer.__plugins.interaction;
+delete PIXI.WebGLRenderer.__plugins.accessibility;
 
 
 game.setup = function () {
@@ -49,7 +52,7 @@ game.startGame = function () {
 
     game.map.init();
 
-    game.renderer = PIXI.autoDetectRenderer(game.resX, game.resY, {
+    game.renderer = new PIXI.WebGLRenderer(game.resX, game.resY, {
         antialias: true
     });
     // Canvas in DOM rein
@@ -335,7 +338,6 @@ game.setSelectedTower = function (tower) {
         // Infos ausblenden
         ui.hideSelectedInfo();
     } else if (selectedTower !== tower) {
-        console.log("select", tower);
         game.drawSelectCircle(tower.type);
         game.moveSelectionTo(tower.cx, tower.cy);
         // Kreis anzeigen

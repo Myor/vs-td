@@ -3,7 +3,7 @@
 
 var PFfinder = new PF.AStarFinder({
     allowDiagonal: false,
-    heuristic: PF.Heuristic.manhattan
+    heuristic: PF.Heuristic.euclidean
 });
 
 

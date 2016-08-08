@@ -31,7 +31,6 @@ Mob.prototype.init = function () {
 
 // Unsichtbar machen
 Mob.prototype.kill = function () {
-    console.log("I had "+this.type.life+" HP and this much speed: "+this.type.speed );
     this.type = null;
     this.spr.texture = game.tex.mobTexEmpty;
     this.barSpr.texture = game.tex.mobBarTexEmpty;
