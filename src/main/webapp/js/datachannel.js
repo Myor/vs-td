@@ -12,7 +12,8 @@ var ws;
 var peerConnection;
 var dataChannel;
 
-var dataChannelSend = document.querySelector("textarea#dataChannelSend");
+//var dataChannelSend = document.querySelector("textarea#dataChannelSend");
+var dataChannelSend =document.getElementById("dataChannelSend");
 var lobbyId = document.querySelector("input#lobby-id");
 var joinButton = document.querySelector("button#lobby-join");
 
@@ -166,6 +167,13 @@ function sendData() {
     console.log("WebRTC Sent Data", data);
 }
 
+function sendGameState() {
+    var gameData = {
+        mobs: game.mobs,
+        towers: game.towers
+    };
+    dataChannel.send(gameData);
+}
 function dataChannelOpen() {
     ws.onmessage = null;
     ws.onclose = null;

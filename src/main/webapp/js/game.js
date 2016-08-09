@@ -72,7 +72,7 @@ var gameloop = function (newTime) {
 
         accumulator -= slowStep;
     }
-
+    //Auf Buttonklick gegner spielfeld einfach im gleichen canvas rendern. Hier dann die unterscheidung welche daten gerendert werden sollen?!!
     updateAnimation(passed / slowFactor, accumulator / slowFactor);
 
 
