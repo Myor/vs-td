@@ -157,6 +157,7 @@ Game.prototype.initGame = function () {
 //    ui.reset();
 
     this.on("addTower", this.addTowerAt, this);
+    this.on("removeTower", this.removeTowerAt, this);
 
 };
 

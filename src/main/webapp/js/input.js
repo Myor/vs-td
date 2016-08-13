@@ -22,7 +22,7 @@ var towerList = id("towers");
 //var mainMenu = id("mainMenu");
 //var towerMenu = id("towerMenu");
 //var towerInfo = id("towerInfo");
-var towerStats = id("towerSelectedInfo");
+var towerStats = id("towerStats");
 //// Buttons Game
 //var nextWaveButton = id("nextWave");
 //var pauseButton = id("pauseGame"); 
@@ -67,8 +67,8 @@ var tSellPrice = towerStats.querySelector(".tSellPrice");
 // Tower spawn
 towerList.addEventListener("click", towerListHandler);
 cancelPlaceBtn.addEventListener("click", towerCancelHandler);
-//// Tower verkauf
-//tSellBtn.addEventListener("click", sellHandler);
+// Tower verkauf
+tSellBtn.addEventListener("click", sellHandler);
 //// Tower aim setzen
 //tAimDiv.addEventListener("click", setAimHandler);
 //// Tower upgraden
@@ -406,14 +406,15 @@ function tryPlace(cx, cy) {
     }
 }
 
+/* ====== Tower Stats Handler ====== */
 // Verkauft ausgewählten Tower
-var sellHandler = function () {
-    var tower = game.getSelectedTower();
+function sellHandler() {
+    var tower = game.local.getSelectedTower();
     if (tower === null) return;
-    game.sellTower(tower);
-    game.setSelectedTower(null);
+    game.local.sellTower(tower);
+    game.local.setSelectedTower(null);
 
-};
+}
 // Setzt aim-Funktion von ausgewähltem Tower
 var setAimHandler = function (e) {
     if (!e.target.matches("button")) return;

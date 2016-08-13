@@ -27,6 +27,7 @@ Game.prototype.tryAddTowerAt = function (typeID, cx, cy) {
         this.drawPath();
     }
     this.removeCash(type.price);
+
     this.emit("addTower", typeID, cx, cy);
 };
 
@@ -61,17 +62,21 @@ Game.prototype.getTowerAt = function (cx, cy) {
 };
 
 Game.prototype.sellTower = function (tower) {
+    this.addCash(tower.type.sellPrice);
+
+    this.emit("removeTower", tower.cx, tower.cy);
+};
+
+Game.prototype.removeTowerAt = function (cx, cy) {
+    var tower = this.collGrid.getTowerAt(cx, cy);
+
     // Pfad freigeben
     if (tower.type.isBlocking) {
         this.PFgrid.setWalkableAt(tower.cx, tower.cy, true);
         this.path = this.findPath();
         this.drawPath();
     }
-    this.addCash(tower.type.sellPrice);
-    this.deleteTower(tower);
-};
 
-Game.prototype.deleteTower = function (tower) {
     if (isBuffTower(tower)) {
         // Wenn Bufftower enternt - Buffs neu berechnen
         this.buffColGrid.deleteTower(tower);
