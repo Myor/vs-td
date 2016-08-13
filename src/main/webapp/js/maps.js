@@ -2,6 +2,11 @@
 
 game.maps = [];
 
+game.setupMapTextures = function () {
+    game.maps[0].init();
+    game.maps[1].init();
+};
+
 var map0 = game.maps[0] = {};
 map0.start = new PIXI.Point(2, 0);
 map0.finish = new PIXI.Point(6, 16);
@@ -53,7 +58,7 @@ map0.init = function () {
     var k = 0;
     for (var i = 0; i < 4; i++) {//y
         for (var j = 0; j < 4; j++) {// x
-            map0.groundTex[k] = texFromCache("map1ground", j * 32, i * 32, 32, 32);
+            map0.groundTex[k] = game.texFromCache("map1ground", j * 32, i * 32, 32, 32);
             k++;
         }
     }
@@ -111,7 +116,7 @@ map1.init = function () {
     var k = 0;
     for (var i = 0; i < 4; i++) {//y
         for (var j = 0; j < 6; j++) {// x
-            map1.groundTex[k] = texFromCache("map2ground", j * 32, i * 32, 32, 32);
+            map1.groundTex[k] = game.texFromCache("map2ground", j * 32, i * 32, 32, 32);
             k++;
         }
     }

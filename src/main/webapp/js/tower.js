@@ -1,114 +1,111 @@
 "use strict";
 
 // Setzt Tower, wenn möglich
-game.tryAddTowerAt = function (typeID, cx, cy) {
+Game.prototype.tryAddTowerAt = function (typeID, cx, cy) {
     // Tower vorhanden bzw. start & ziel
-    if (game.collGrid.islockedAt(cx, cy)
-            || game.collGrid.getTowerAt(cx, cy) !== null
+    if (this.collGrid.islockedAt(cx, cy)
+            || this.collGrid.getTowerAt(cx, cy) !== null
             || utils.isStart(cx, cy)
             || utils.isFinish(cx, cy)) {
-        return false;
+        return;
     }
     var type = towerTypes[typeID];
 
-    if (!game.hasCash(type.price)) return false;
+    if (!this.hasCash(type.price)) return;
 
     // Wenn Tower den Weg blockieren kann
     if (type.isBlocking) {
         // Weg neu berechnen
-        game.PFgrid.setWalkableAt(cx, cy, false);
-        var newPath = game.findPath();
+        this.PFgrid.setWalkableAt(cx, cy, false);
+        var newPath = this.findPath();
         // Nur setzen, wenn Weg vorhanden
         if (newPath.length === 0) {
-            game.PFgrid.setWalkableAt(cx, cy, true);
-            return false;
+            this.PFgrid.setWalkableAt(cx, cy, true);
+            return;
         }
-        game.path = newPath;
-        game.drawPath();
+        this.path = newPath;
+        this.drawPath();
     }
-    game.removeCash(type.price);
-    game.addTowerAt(type, cx, cy);
-    return true;
+    this.removeCash(type.price);
+    this.emit("addTower", typeID, cx, cy);
 };
 
 // Setzt Tower ohne Einschränkungen zu prüfen
-game.addTowerAt = function (type, cx, cy) {
+Game.prototype.addTowerAt = function (typeID, cx, cy) {
+    var type = towerTypes[typeID];
 
-    var tower = new Tower(type, cx, cy);
-    game.towers.add(tower);
+    var tower = new Tower(this, type, cx, cy);
+    this.towers.add(tower);
 
     if (isBuffTower(tower)) {
-        game.buffColGrid.addTower(tower);
+        this.buffColGrid.addTower(tower);
     }
-    game.collGrid.addTower(tower);
+    this.collGrid.addTower(tower);
 
-
-    game.calculateBuffs();
+    this.calculateBuffs();
 
     // Blockieren, wenn nötig
     if (type.isBlocking) {
-        game.PFgrid.setWalkableAt(cx, cy, false);
+        this.PFgrid.setWalkableAt(cx, cy, false);
     }
 
     return tower;
 };
 
 // Tower für Zelle finden, null wenn keiner vorhanden
-game.getTowerAt = function (cx, cy) {
-    if (game.fieldRect.contains(cx, cy) && !game.collGrid.islockedAt(cx, cy)) {
-        return game.collGrid.getTowerAt(cx, cy);
+Game.prototype.getTowerAt = function (cx, cy) {
+    if (game.fieldRect.contains(cx, cy) && !this.collGrid.islockedAt(cx, cy)) {
+        return this.collGrid.getTowerAt(cx, cy);
     }
     return null;
 };
 
-game.sellTower = function (tower) {
+Game.prototype.sellTower = function (tower) {
     // Pfad freigeben
     if (tower.type.isBlocking) {
-        game.PFgrid.setWalkableAt(tower.cx, tower.cy, true);
-        game.path = game.findPath();
-        game.drawPath();
+        this.PFgrid.setWalkableAt(tower.cx, tower.cy, true);
+        this.path = this.findPath();
+        this.drawPath();
     }
-    game.addCash(tower.type.sellPrice);
-    game.deleteTower(tower);
+    this.addCash(tower.type.sellPrice);
+    this.deleteTower(tower);
 };
 
-game.deleteTower = function (tower) {
+Game.prototype.deleteTower = function (tower) {
     if (isBuffTower(tower)) {
         // Wenn Bufftower enternt - Buffs neu berechnen
-        game.buffColGrid.deleteTower(tower);
-        game.calculateBuffs();
+        this.buffColGrid.deleteTower(tower);
+        this.calculateBuffs();
     }
-    game.collGrid.deleteTower(tower);
+    this.collGrid.deleteTower(tower);
 
-    game.towers.remove(tower);
-
-    // Aufräumen
+    this.towers.remove(tower);
     tower.destroy();
 };
 
-game.upgradeTower = function (tower) {
+Game.prototype.upgradeTower = function (tower) {
     var nextType = tower.type.next;
 
-    if (!game.hasCash(nextType.price)) return;
-    game.removeCash(nextType.price);
+    if (!this.hasCash(nextType.price)) return;
+    this.removeCash(nextType.price);
 
-    game.deleteTower(tower);
-    return game.addTowerAt(nextType, tower.cx, tower.cy);
+    this.deleteTower(tower);
+    this.addTowerAt(nextType, tower.cx, tower.cy);
 };
 
 
-game.calculateBuffs = function () {
-    var towers = game.towers.getArray();
+Game.prototype.calculateBuffs = function () {
+    var towers = this.towers.getArray();
     var tower;
     var buffTowers;
     for (var i = 0; i < towers.length; i++) {
         tower = towers[i];
-        if (!isBuffTower(towers)) {
+        if (!isBuffTower(tower)) {
             tower.powerMulti = 1;
             tower.freqMulti = 1;
             tower.radiusMulti = 1;
 
-            buffTowers = game.buffColGrid.getCollisionsAt(tower.cx, tower.cy).getArray();
+            buffTowers = this.buffColGrid.getCollisionsAt(tower.cx, tower.cy).getArray();
 
             for (var j = 0; j < buffTowers.length; j++) {
                 if ("powerAdd" in buffTowers[j].type) {
@@ -122,23 +119,13 @@ game.calculateBuffs = function () {
     }
 };
 
-var randomTowers = function () {
-    var i, j;
-    for (i = 0; i < game.cellsX; i++) {
-        for (j = 0; j < game.cellsY; j++) {
-            if (Math.random() > 0.70) {
-                game.tryAddTowerAt(1, i, j);
-            }
-        }
-    }
-};
-
 var isBuffTower = function (tower) {
     return tower.type === towerTypes[11] || tower.type === towerTypes[12];
 };
 
 // Allgemeiner Tower Konstruktor
-var Tower = function (type, cx, cy) {
+var Tower = function (gameRef, type, cx, cy) {
+    this.game = gameRef;
     this.type = type;
     this.killCount = 0;
 
@@ -156,13 +143,13 @@ var Tower = function (type, cx, cy) {
     this.spr.x = this.x + game.cellCenter;
     this.spr.y = this.y + game.cellCenter;
 
-    game.towersCon.addChild(this.spr);
+    this.game.towersCon.addChild(this.spr);
     type.init.call(this);
     Object.assign(this, type.extend);
 };
 
 Tower.prototype.destroy = function () {
-    game.towersCon.removeChild(this.spr);
+    this.game.towersCon.removeChild(this.spr);
     this.spr.destroy();
 };
 // Funktionen, welche alle Tower teilen

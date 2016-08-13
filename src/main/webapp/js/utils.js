@@ -98,7 +98,7 @@ utils.cell2Pos = function (cell) {
 };
 // Globale Pixel zu Position auf Spielfeld umrechnen
 utils.input2Cell = function (px) {
-    return utils.pos2Cell(px * game.scale);
+    return utils.pos2Cell(px);
 };
 
 utils.isStart = function (cx, cy) {

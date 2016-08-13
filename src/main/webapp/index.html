@@ -11,14 +11,14 @@
 
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
-        <link rel="stylesheet" href="css/style.css">
+        <!--<link rel="stylesheet" href="css/style.css">-->
 
         <script src="js/vendor/pixi.js"></script>
         <script src="js/vendor/pathfinding-browser.js"></script>
     </head>
     <body>
         <div id="content">
-            <div id="mainMenu">
+            <!--<div id="mainMenu">
                 <button id="playGame" disabled="disabled">Play Game</button>
                 <div id="mapSelect" class="hideMapSelect">
                     <div>
@@ -36,95 +36,117 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div>-->
 
-            <div id="gameWrapper" class="hidden">
-                <div id="gameLife"></div>
-                <div id="gameCash"></div>
-                <div id="gameRound"></div>
+            <div id="gameWrapper">
+                <div id="localGame">
 
-                <div class="hideLeft" id="towerMenu">
-                    <div id="towers">
-                        <div class="towerDiv">
-                            <button class="tower" data-type="0">0</button>
-                            <button class="towerInfo" data-type="0">i</button>
-                        </div>
-                        <div class="towerDiv">
-                            <button class="tower" data-type="1">1</button>
-                            <button class="towerInfo" data-type="1">i</button>
-                        </div>
-                        <div class="towerDiv">
-                            <button class="tower" data-type="3">3</button>
-                            <button class="towerInfo" data-type="3">i</button>
-                        </div>
-                        <div class="towerDiv">
-                            <button class="tower" data-type="5">5</button>
-                            <button class="towerInfo" data-type="5">i</button>
-                        </div>
-                        <div class="towerDiv">
-                            <button class="tower" data-type="7">7</button>
-                            <button class="towerInfo" data-type="7">i</button>
-                        </div>
-                        <div class="towerDiv">
-                            <button class="tower" data-type="9">9</button>
-                            <button class="towerInfo" data-type="9">i</button>
-                        </div>
-                        <div class="towerDiv">
-                            <button class="tower" data-type="11">11</button>
-                            <button class="towerInfo" data-type="11">i</button>
+                    <div id="localGameField"></div>
+
+                    <div id="localStats">
+                        <div id="localLife">42</div>
+                        <div id="localCash">42</div>
+                        <div id="localRound">42</div>
+                    </div>
+
+                    <div id="towerMenu">
+                        <div id="towers">
+                            <div class="towerDiv">
+                                <button class="tower" data-type="0">0</button>
+                                <button class="towerInfo" data-type="0">i</button>
+                            </div>
+                            <div class="towerDiv">
+                                <button class="tower" data-type="1">1</button>
+                                <button class="towerInfo" data-type="1">i</button>
+                            </div>
+                            <div class="towerDiv">
+                                <button class="tower" data-type="3">3</button>
+                                <button class="towerInfo" data-type="3">i</button>
+                            </div>
+                            <div class="towerDiv">
+                                <button class="tower" data-type="5">5</button>
+                                <button class="towerInfo" data-type="5">i</button>
+                            </div>
+                            <div class="towerDiv">
+                                <button class="tower" data-type="7">7</button>
+                                <button class="towerInfo" data-type="7">i</button>
+                            </div>
+                            <div class="towerDiv">
+                                <button class="tower" data-type="9">9</button>
+                                <button class="towerInfo" data-type="9">i</button>
+                            </div>
+                            <div class="towerDiv">
+                                <button class="tower" data-type="11">11</button>
+                                <button class="towerInfo" data-type="11">i</button>
+                            </div>
                         </div>
                     </div>
+
+                    <div id="towerInfo"></div>
+
+                    <div id="towerSelectedInfo">
+                        <div class="tName"></div>
+                        <div>Kills: <span class="tKillCount"></span></div>
+                        <div>Damage: <span class="tPower"></span></div>
+                        <div>Reload: <span class="tFreq"></span></div>
+                        <div>Radius: <span class="tRadius"></span></div>
+                        <div class="tUpgrade">
+                            <div class="tCurrentDiv">Level <span class="tCurrentLvl"></span></div>
+                            <button class="tNextBtn">
+                                Level <span class="tNextLvl"></span><br>
+                                <span class="tNextPrice"></span>$
+                            </button>
+                        </div>
+
+                        <button class="tSellBtn">Verkaufen<br>(+<span class="tSellPrice"></span>$)</button> 
+                        <div class="tAimDiv">
+                            <button data-aim="first">First</button>
+                            <button data-aim="last">Last</button>
+                            <button data-aim="strong">Strong</button>
+                            <button data-aim="weak">Weak</button>
+                            <button data-aim="close">Close</button>
+                        </div>
+                    </div>
+
+                    <div id="menu">
+                        <!--<button id="showTowers"></button>-->
+                        <button id="cancelPlace" disabled>Cancel</button>
+                        <button id="pauseGame">Pause</button>
+                        <button id="fastForward">FF</button>
+                        <button id="nextWave">Next Wave</button>
+                        <button id="exitBtn">Exit</button>
+                    </div>
+
+                    <div id="mobMenu">
+                        <div id="mobs">
+                            <button data-type="0">0</button>
+                            <button data-type="1">1</button>
+                            <button data-type="2">2</button>
+                        </div>
+                    </div>
+
+                    <!--<div id="gameOverlay">
+                        <div id="winMsg">
+                            <div class="msg">Gewonnen!</div>
+                            <button id="exitWin">Exit</button>
+                        </div>
+                        <div id="loseMsg">
+                            <div class="msg">Verloren!</div>
+                            <button id="exitLose">Exit</button>
+                        </div>
+                    </div>-->
                 </div>
 
-                <div class="infoHide" id="towerInfo"></div>
+                <div id="remoteGame">
+                    <div id="remoteGameField"></div>
+                </div>
 
-                <div class="hideRight" id="towerSelectedInfo">
-                    <div class="tName"></div>
-                    <div>Kills: <span class="tKillCount"></span></div>
-                    <div>Damage: <span class="tPower"></span></div>
-                    <div>Reload: <span class="tFreq"></span></div>
-                    <div>Radius: <span class="tRadius"></span></div>
-                    <div class="tUpgrade">
-                        <div class="tCurrentDiv">Level <span class="tCurrentLvl"></span></div>
-                        <button class="tNextBtn">
-                            Level <span class="tNextLvl"></span><br>
-                            <span class="tNextPrice"></span>$
-                        </button>
-                    </div>
-
-                    <button class="tSellBtn">Verkaufen<br>(+<span class="tSellPrice"></span>$)</button> 
-                    <div class="tAimDiv">
-                        <button data-aim="first">First</button>
-                        <button data-aim="last">Last</button>
-                        <button data-aim="strong">Strong</button>
-                        <button data-aim="weak">Weak</button>
-                        <button data-aim="close">Close</button>
-                    </div>
-                </div>
-                <div id="gameField"></div>
-                <div id="menu">
-                    <button id="showTowers"></button>
-                    <button id="cancelPlace" disabled></button>
-                    <button id="pauseGame"></button>
-                    <button id="fastForward"></button>
-                    <button id="nextWave"></button>
-                    <button id="exitBtn"></button>
-                </div>
-                <div id="gameOverlay">
-                    <div id="winMsg">
-                        <div class="msg">Gewonnen!</div>
-                        <button id="exitWin">Exit</button>
-                    </div>
-                    <div id="loseMsg">
-                        <div class="msg">Verloren!</div>
-                        <button id="exitLose">Exit</button>
-                    </div>
-                </div>
             </div>
         </div>
         <!--<script src="cordova.js"></script>-->
         <script src="js/utils.js"></script>
         <script src="js/setup.js"></script>
+        <script src="js/selection.js"></script>
         <script src="js/maps.js"></script>
         <script src="js/path.js"></script>
         <script src="js/mobs.js"></script>

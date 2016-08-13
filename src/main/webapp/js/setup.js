@@ -1,7 +1,22 @@
 "use strict";
 
-var game = {};
+document.addEventListener("DOMContentLoaded", loadResources);
 
+function loadResources() {
+    PIXI.loader
+            .add("mobs", "assets/mobSheet32.png")
+            .add("mobBar", "assets/mobBar.png")
+            .add("towers", "assets/towerSheet32.png")
+            .add("shots", "assets/shots@2x.png")
+            .add("pathMark", "assets/pathMarker.png")
+            .add("map1ground", "assets/map1ground32.png")
+            .add("map2ground", "assets/map2ground32.png")
+            .add("shockwave", "assets/shockwave.png")
+            .load(game.setup);
+}
+
+// Objekt für Statische Daten / Funktionen
+var game = {};
 game.resX = 384;
 game.resY = 544;
 game.cellSize = 32;
@@ -10,7 +25,9 @@ game.cellsX = 12; // = resX / cellSize
 game.cellsY = 17; // = resY / cellSize
 // Rechteck für einfach hit-tests
 game.fieldRect = new PIXI.Rectangle(0, 0, game.cellsX, game.cellsY);
-
+game.map = null;
+// Simulationsschritt in ms
+game.step = 50;
 
 // ParticleContainer für gute Performance (wird auf GPU berechnet)
 // Alle bekommen die gleichen Optionen, wegen PIXI Bug
@@ -31,144 +48,191 @@ delete PIXI.WebGLRenderer.__plugins.accessibility;
 
 
 game.setup = function () {
-    document.getElementById("playGame").disabled = false;
-};
-
-game.startGame = function () {
+    console.log("setup");
 
     game.setupTextures();
+    game.setupMapTextures();
+    game.map = game.maps[0];
+    game.local = new Game(document.getElementById("localGameField"));
+    game.local.initGame();
+    game.local.initLoops();
+    game.local.startGameLoop();
+};
 
-    game.life = 100;
-    game.updateLife();
-//    game.cash = 2000;
-    game.updateCash();
+// Spielfeld Konstruktor
+function Game(el) {
+    this.containerEl = el;
+}
+// Game erweitert den EventEmitter von PIXI
+Game.prototype = new PIXI.utils.EventEmitter();
+Game.prototype.constructor = Game;
+
+Game.prototype.initGame = function () {
+
+    this.life = 100;
+    this.cash = 4242;
+//    this.updateLife();
+//    this.updateCash();
 
     // Waves
-    game.currentWaveID = -1;
-    game.isWaveActive = false;
-    game.currentGroup = null;
-    game.groupQueue = new Queue();
-    game.currentDelay = 0;
+//    this.groupQueue = new Queue();
+//    this.currentWaveID = -1;
+//    this.isWaveActive = false;
+//    this.currentGroup = null;
+//    this.currentDelay = 0;
 
-    game.map.init();
-
-    game.renderer = new PIXI.WebGLRenderer(game.resX, game.resY, {
+    this.renderer = new PIXI.WebGLRenderer(game.resX, game.resY, {
         antialias: true
     });
     // Canvas in DOM rein
-    game.canvasEl = game.renderer.view;
-    document.getElementById("gameField").appendChild(game.canvasEl);
+    this.canvasEl = this.renderer.view;
+    this.containerEl.appendChild(this.canvasEl);
 
     // Werte für Berechnung von Input merken
-    var rec = game.canvasEl.getBoundingClientRect();
-    game.offsetX = rec.left;
-    game.offsetY = rec.top;
-    game.scale = game.resX / rec.width;
+    var rec = this.canvasEl.getBoundingClientRect();
+    this.offsetX = rec.left;
+    this.offsetY = rec.top;
+//    this.scale = game.resX / rec.width;
 
-    game.collGrid = new CollisionGrid(game.cellsX, game.cellsY);
-    game.buffColGrid = new CollisionGrid(game.cellsX, game.cellsY);
-
-    var stage = new PIXI.Container();
-    game.stage = stage;
-
-    // Map
-    game.mapCont = new PIXI.Container();
+    // Collision-Grids
+    this.collGrid = new CollisionGrid(game.cellsX, game.cellsY);
+    this.buffColGrid = new CollisionGrid(game.cellsX, game.cellsY);
 
     // Pfad
-    game.PFgrid = new PF.Grid(game.cellsX, game.cellsY);
-    game.pathCont = new PIXI.Container();
+    this.PFgrid = new PF.Grid(game.cellsX, game.cellsY);
 
-    // Tower Kram
-    game.shotCon = new PIXI.ParticleContainer(1000, particleConOptions, 1000);
+    // PIXI Container
+    var stage = new PIXI.Container();
+    this.stage = stage;
+    this.mapCon = new PIXI.Container();
+    this.pathCon = new PIXI.Container();
 
-    game.shockCon = new PIXI.ParticleContainer(100, particleConOptions, 100);
+    this.shotCon = new PIXI.ParticleContainer(1000, particleConOptions, 1000);
+    this.shockCon = new PIXI.ParticleContainer(100, particleConOptions, 100);
+    this.towersCon = new PIXI.ParticleContainer(200, particleConOptions, 200);
 
-    game.towersCon = new PIXI.ParticleContainer(200, particleConOptions, 200);
-    game.towers = new FastSet();
+    this.mobsCon = new PIXI.ParticleContainer(50000, particleConOptions, 10000);
+    this.mobsBarCon = new PIXI.ParticleContainer(50000, particleConOptions, 10000);
+
+    this.towers = new FastSet();
+    this.mobs = new FastSet();
+    this.mobPool = new Pool(Mob, 10);
+//    this.mobQueue = new Queue();
 
     // Grafik für Radius-anzeige
-    game.selectCircleGr = new PIXI.Graphics();
+    this.selectCircleGr = new PIXI.Graphics();
 
     // Grafik beim Tower setzten
-    // TODO könnte Grafik vom passenden Tower selber sein
-    game.selectGr = new PIXI.Graphics();
-    game.selectGr.beginFill(0xFFFFFF, 0.5);
-    game.selectGr.drawRect(-game.cellCenter, -game.cellCenter, game.cellSize, game.cellSize);
+    this.selectGr = new PIXI.Graphics();
+    this.selectGr.beginFill(0xFFFFFF, 0.5);
+    this.selectGr.drawRect(-game.cellCenter, -game.cellCenter, game.cellSize, game.cellSize);
 
-    game.setSelectedTower(null);
-
-    // Mob Kram
-    game.mobsCon = new PIXI.ParticleContainer(50000, particleConOptions, 10000);
-    game.mobsBarCon = new PIXI.ParticleContainer(50000, particleConOptions, 10000);
-    game.mobs = new FastSet();
-    game.mobQueue = new Queue();
-    game.mobPool = new Pool(Mob, 10);
+    this.selectedTower = null;
+    this.setSelectedTower(null);
 
     // Alle Layer hinzufügen
-    stage.addChild(game.mapCont);
-    stage.addChild(game.pathCont);
-    stage.addChild(game.selectCircleGr);
-    stage.addChild(game.shotCon);
-    stage.addChild(game.shockCon);
-    stage.addChild(game.towersCon);
-    stage.addChild(game.selectGr);
-    stage.addChild(game.mobsCon);
-    stage.addChild(game.mobsBarCon);
+    stage.addChild(this.mapCon);
+    stage.addChild(this.selectCircleGr);
+    stage.addChild(this.shotCon);
+    stage.addChild(this.shockCon);
+    stage.addChild(this.towersCon);
+    stage.addChild(this.pathCon);
+    stage.addChild(this.selectGr);
+    stage.addChild(this.mobsCon);
+    stage.addChild(this.mobsBarCon);
 
-    game.setupMap();
+    // Map malen
+    this.initMap();
     // Map kann Pfad geändert haben
-    game.path = game.findPath();
-    game.drawPath();
+    this.path = this.findPath();
+    this.drawPath();
 
-    game.setupInput();
+//    game.setupInput();
 
-    game.isPaused = false;
-    game.isLost = false;
-    game.updateRound();
-    ui.reset();
-    game.startGameLoop();
+    this.isPaused = false;
+    this.isLost = false;
+//    this.updateRound();
+//    ui.reset();
+
+    this.on("addTower", this.addTowerAt, this);
+
 };
 
-game.exitGame = function () {
-    game.stopGameLoop();
+Game.prototype.destroyGame = function () {
+    this.stopGameLoop();
     // Aktive Aktionen abbrechen
-    ui.endPlace();
-    ui.hideMenu();
-    game.setSelectedTower(null);
+//    ui.endPlace();
+//    ui.hideMenu();
+    this.setSelectedTower(null);
 
     // Stage mit allen Inhalten löschen
-    game.stage.destroy(true);
-    game.stage = null;
+    // TODO Texturen nicht mit löschen / erneut verwenden
+    this.stage.destroy(true);
+    this.stage = null;
     // Renderer mit Canvas löschen
-    game.renderer.destroy(true);
-    game.renderer = null;
-    game.canvasEl = null;
+    this.renderer.destroy(true);
+    this.renderer = null;
+    this.canvasEl = null;
     // Alle Referenzen auf Objekte löschen
-    game.collGrid = null;
-    game.buffColGrid = null;
+    this.collGrid = null;
+    this.buffColGrid = null;
 
-    game.map = null;
+    this.mapCon = null;
+    this.pathCon = null;
+    this.shotCon = null;
+    this.shockCon = null;
+    this.towersCon = null;
+    this.towers = null;
 
-    game.mapCont = null;
-    game.pathCont = null;
-    game.shotCon = null;
-    game.shockCon = null;
-    game.towersCon = null;
-    game.towers = null;
+    this.selectCircleGr = null;
+    this.selectGr = null;
 
-    game.selectCircleGr = null;
-    game.selectGr = null;
+    this.mobsCon = null;
+    this.mobsBarCon = null;
+    this.mobs = null;
+    this.mobQueue = null;
+    this.groupQueue = null;
+    this.mobPool = null;
 
-    game.mobsCon = null;
-    game.mobsBarCon = null;
-    game.mobs = null;
-    game.mobQueue = null;
-    game.groupQueue = null;
-    game.mobPool = null;
+    this.PFgrid = null;
+    this.path = null;
 
-    game.PFgrid = null;
-    game.path = null;
+};
 
+Game.prototype.initMap = function () {
+    var map = game.map;
+    var mapCon = this.mapCon;
+
+    this.renderer.backgroundColor = map.bgColor;
+
+    // Background
+    var layout = map.groundLayout;
+    for (var y = 0; y < game.cellsY; y++) {
+        for (var x = 0; x < game.cellsX; x++) {
+            var index = y * game.cellsX + x;
+            var spr = new PIXI.Sprite(map.groundTex[layout[index]]);
+            spr.position.x = utils.cell2Pos(x);
+            spr.position.y = utils.cell2Pos(y);
+            mapCon.addChild(spr);
+        }
+    }
+
+    // Map ändert sich nicht, kann gecached werden
+    mapCon.cacheAsBitmap = true;
+
+    // Standard Tower
+//    var walls = map.walls;
+//    for (var i = 0; i < walls.length; i++) {
+//        game.addTowerAt(towerTypes[0], walls[i][0], walls[i][1]);
+//    }
+    // Blockierte Zellen
+//    var locks = map.locks;
+//    for (var y = 0; y < game.cellsY; y++) {
+//        for (var x = 0; x < game.cellsX; x++) {
+//            var index = y * game.cellsX + x;
+//            if (locks[index] === 1) game.lockCell(x, y);
+//        }
+//    }
 };
 
 game.setupTextures = function () {
@@ -177,6 +241,8 @@ game.setupTextures = function () {
     game.tex.mobTexEmpty = texFromCache("mobs", 0, 0, 32, 32);
     game.tex.mobBarTex = texFromCache("mobBar", 0, 0, 32, 3);
     game.tex.mobBarTexEmpty = texFromCache("mobBar", 0, 6, 32, 4);
+
+    game.tex.pathMark = texFromCache("pathMark");
 
     mobTypes[0].tex = texFromCache("mobs", 33, 0, 32, 32);
     mobTypes[1].tex = texFromCache("mobs", 66, 0, 32, 32);
@@ -202,19 +268,19 @@ game.setupTextures = function () {
     towerTypes[2].tex = towerTypes[1].tex;
     towerTypes[2].tex2 = towerTypes[1].tex;
     towerTypes[2].shotTex = texFromCache("shots", 17, 0, 1, 32);
-    
+
     // Laser 2
     towerTypes[3].tex = texFromCache("towers", 1, 0, 32, 32);
     towerTypes[3].shotTex = texFromCache("shots", 6, 0, 1, 32);
     // Laser 2 Level 2
     towerTypes[4].tex = towerTypes[3].tex;
     towerTypes[4].shotTex = texFromCache("shots", 1, 0, 1, 32);
-    
+
     // Slime
     towerTypes[5].tex = texFromCache("towers", 443, 0, 32, 32);
     // Slime Level 2
     towerTypes[6].tex = towerTypes[5].tex;
-    
+
     // AoE
     towerTypes[7].tex = texFromCache("towers", 35, 0, 32, 32);
     towerTypes[7].tex2 = texFromCache("towers", 69, 0, 32, 32);
@@ -223,7 +289,7 @@ game.setupTextures = function () {
     towerTypes[8].tex = towerTypes[7].tex;
     towerTypes[8].tex2 = towerTypes[7].tex2;
     towerTypes[8].shotTex = texFromCache("shockwave");
-    
+
     // Ufo
     towerTypes[9].tex = texFromCache("towers", 342, 0, 32, 32);
     towerTypes[9].tex2 = texFromCache("towers", 377, 0, 32, 32);
@@ -240,7 +306,7 @@ game.setupTextures = function () {
         texFromCache("shots", 0, 160, 128, 32),
         texFromCache("shots", 0, 192, 128, 32)
     ];
-    
+
     // Aura
     towerTypes[11].tex = texFromCache("towers", 170, 0, 32, 32);
     towerTypes[11].texAnim = [
@@ -261,8 +327,9 @@ game.setupTextures = function () {
     ];
 
 };
+
 // Textur aus loader Cache lesen, mit frame
-var texFromCache = function (img, x, y, w, h) {
+function texFromCache(img, x, y, w, h) {
     if (x !== undefined) {
         return new PIXI.Texture(
                 PIXI.loader.resources[img].texture.baseTexture,
@@ -270,85 +337,6 @@ var texFromCache = function (img, x, y, w, h) {
     } else {
         return new PIXI.Texture(PIXI.loader.resources[img].texture.baseTexture);
     }
-};
-
-game.setupMap = function () {
-    var map = game.map;
-    var cont = game.mapCont;
-
-    game.renderer.backgroundColor = map.bgColor;
-
-    /* === Background Textures === */
-    var layout = map.groundLayout;
-    for (var y = 0; y < game.cellsY; y++) {
-        for (var x = 0; x < game.cellsX; x++) {
-            var index = y * game.cellsX + x;
-            var spr = new PIXI.Sprite(map.groundTex[layout[index]]);
-            spr.position.x = utils.cell2Pos(x);
-            spr.position.y = utils.cell2Pos(y);
-            cont.addChild(spr);
-        }
-    }
-
-    // Map ändert sich nicht, kann gecached werden
-    cont.cacheAsBitmap = true;
-
-    // Standard Tower
-    var walls = map.walls;
-    for (var i = 0; i < walls.length; i++) {
-        game.addTowerAt(towerTypes[0], walls[i][0], walls[i][1]);
-    }
-    // Blockierte Zellen
-    var locks = map.locks;
-    for (var y = 0; y < game.cellsY; y++) {
-        for (var x = 0; x < game.cellsX; x++) {
-            var index = y * game.cellsX + x;
-            if (locks[index] === 1) game.lockCell(x, y);
-        }
-    }
-};
-
-/* ==== Tower Radius Anzeige ==== */
-var selectedTower = null;
-
-game.drawSelectCircle = function (type) {
-    game.selectCircleGr.clear();
-    if ("radius" in type) {
-        game.selectCircleGr.beginFill(0x000000, 0.3);
-        game.selectCircleGr.drawCircle(0, 0, type.radius * game.cellSize);
-    }
-};
-game.showSelection = function () {
-    game.selectGr.visible = true;
-    game.selectCircleGr.visible = true;
-};
-game.hideSelection = function () {
-    game.selectGr.visible = false;
-    game.selectCircleGr.visible = false;
-};
-
-game.getSelectedTower = function () {
-    return selectedTower;
-};
-
-game.setSelectedTower = function (tower) {
-    if (tower === null) {
-        // Kreis ausblenden
-        game.hideSelection();
-        // Infos ausblenden
-        ui.hideSelectedInfo();
-    } else if (selectedTower !== tower) {
-        game.drawSelectCircle(tower.type);
-        game.moveSelectionTo(tower.cx, tower.cy);
-        // Kreis anzeigen
-        game.showSelection();
-        // Infos anzeigen
-        ui.showSelectedInfo(tower);
-    }
-    selectedTower = tower;
-};
-
-game.moveSelectionTo = function (cx, cy) {
-    game.selectGr.x = game.selectCircleGr.x = utils.cell2Pos(cx) + game.cellCenter;
-    game.selectGr.y = game.selectCircleGr.y = utils.cell2Pos(cy) + game.cellCenter;
-};
+}
+;
+game.texFromCache = texFromCache;

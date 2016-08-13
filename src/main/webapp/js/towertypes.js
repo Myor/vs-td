@@ -35,12 +35,12 @@ towerTypes[1] = {
         this.shotSpr.anchor.set(0, 0.5);
         this.shotSpr.x = this.x + game.cellCenter;
         this.shotSpr.y = this.y + game.cellCenter;
-        game.shotCon.addChild(this.shotSpr);
+        this.game.shotCon.addChild(this.shotSpr);
     },
     extend: {
         destroy: function () {
             Tower.prototype.destroy.call(this);
-            game.shotCon.removeChild(this.shotSpr);
+            this.game.shotCon.removeChild(this.shotSpr);
             this.shotSpr.destroy();
         },
         update: function () {
@@ -103,12 +103,12 @@ towerTypes[2] = {
         this.shotSpr.anchor.set(0, 0.5);
         this.shotSpr.x = this.x + game.cellCenter;
         this.shotSpr.y = this.y + game.cellCenter;
-        game.shotCon.addChild(this.shotSpr);
+        this.game.shotCon.addChild(this.shotSpr);
     },
     extend: {
         destroy: function () {
             Tower.prototype.destroy.call(this);
-            game.shotCon.removeChild(this.shotSpr);
+            this.game.shotCon.removeChild(this.shotSpr);
             this.shotSpr.destroy();
         },
         update: function () {
@@ -173,12 +173,12 @@ towerTypes[3] = {
         this.shotSpr.anchor.set(0, 0.5);
         this.shotSpr.x = this.x + game.cellCenter;
         this.shotSpr.y = this.y + game.cellCenter;
-        game.shotCon.addChild(this.shotSpr);
+        this.game.shotCon.addChild(this.shotSpr);
     },
     extend: {
         destroy: function () {
             Tower.prototype.destroy.call(this);
-            game.shotCon.removeChild(this.shotSpr);
+            this.game.shotCon.removeChild(this.shotSpr);
             this.shotSpr.destroy();
         },
         update: function () {
@@ -236,12 +236,12 @@ towerTypes[4] = {
         this.shotSpr.anchor.set(0, 0.5);
         this.shotSpr.x = this.x + game.cellCenter;
         this.shotSpr.y = this.y + game.cellCenter;
-        game.shotCon.addChild(this.shotSpr);
+        this.game.shotCon.addChild(this.shotSpr);
     },
     extend: {
         destroy: function () {
             Tower.prototype.destroy.call(this);
-            game.shotCon.removeChild(this.shotSpr);
+            this.game.shotCon.removeChild(this.shotSpr);
             this.shotSpr.destroy();
         },
         update: function () {
@@ -340,12 +340,12 @@ towerTypes[7] = {
         this.shotSpr.y = this.y + game.cellCenter;
         this.shotSpr.scale.set(0.1);
 
-        game.shockCon.addChild(this.shotSpr);
+        this.game.shockCon.addChild(this.shotSpr);
     },
     extend: {
         destroy: function () {
             Tower.prototype.destroy.call(this);
-            game.shockCon.removeChild(this.shotSpr);
+            this.game.shockCon.removeChild(this.shotSpr);
             this.shotSpr.destroy();
         },
         update: function () {
@@ -402,12 +402,12 @@ towerTypes[8] = {
         this.shotSpr.y = this.y + game.cellCenter;
         this.shotSpr.scale.set(0.1);
 
-        game.shockCon.addChild(this.shotSpr);
+        this.game.shockCon.addChild(this.shotSpr);
     },
     extend: {
         destroy: function () {
             Tower.prototype.destroy.call(this);
-            game.shockCon.removeChild(this.shotSpr);
+            this.game.shockCon.removeChild(this.shotSpr);
             this.shotSpr.destroy();
         },
         update: function () {
@@ -467,12 +467,12 @@ towerTypes[9] = {
         this.shotSpr.x = this.x + game.cellCenter;
         this.shotSpr.y = this.y + game.cellCenter;
         this.shotSpr.scale.set(0);
-        game.shotCon.addChild(this.shotSpr);
+        this.game.shotCon.addChild(this.shotSpr);
     },
     extend: {
         destroy: function () {
             Tower.prototype.destroy.call(this);
-            game.shotCon.removeChild(this.shotSpr);
+            this.game.shotCon.removeChild(this.shotSpr);
             this.shotSpr.destroy();
         },
         update: function () {
@@ -534,12 +534,12 @@ towerTypes[10] = {
         this.shotSpr.x = this.x + game.cellCenter;
         this.shotSpr.y = this.y + game.cellCenter;
         this.shotSpr.scale.set(0);
-        game.shotCon.addChild(this.shotSpr);
+        this.game.shotCon.addChild(this.shotSpr);
     },
     extend: {
         destroy: function () {
             Tower.prototype.destroy.call(this);
-            game.shotCon.removeChild(this.shotSpr);
+            this.game.shotCon.removeChild(this.shotSpr);
             this.shotSpr.destroy();
         },
         update: function () {

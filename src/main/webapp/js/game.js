@@ -1,115 +1,86 @@
 "use strict";
 
-var loadResources = function () {
-    PIXI.loader
-            .add("mobs", "assets/mobSheet32.png")
-            .add("mobBar", "assets/mobBar.png")
-            .add("towers", "assets/towerSheet32.png")
-            .add("shots", "assets/shots@2x.png")
-            .add("pathMark", "assets/pathMarker.png")
-            .add("map1ground", "assets/map1ground32.png")
-            .add("map2ground", "assets/map2ground32.png")
-            .add("shockwave", "assets/shockwave.png")
-            .load(game.setup);
-};
-
-var cordovaSetup = function () {
-    // Zurück-Button deaktivieren
-    document.addEventListener("backbutton", function (e) {
-        e.preventDefault();
-    });
-    // Beim minimieren der App pausieren
-    document.addEventListener("pause", ui.pauseGame);
-    // Vibration API
-    ui.canVibrate = window.navigator.vibrate !== undefined;
-    
-    loadResources();
-};
-
-if (window.cordova !== undefined) {
-    // In Cordova App auf deviceready warten
-    document.addEventListener("deviceready", cordovaSetup);
-} else {
-    // Im Browser
-    loadResources();
-}
-
-/* ==== Loops === */
-
-var accumulator = 0; // Sammelt die Frame-Zeiten
-var passed = 0; // Summe aller Frame-Zeiten
-var step = 50; // Fester Simulationsschritt
-var slowFactor = 1; // Slow-motion Faktor
-var lastTime = 0;
-
-var frameId;
-
-
-// Game-loop
+/* ==== Game-Loops === */
 // http://gafferongames.com/game-physics/fix-your-timestep/
 // http://codeincomplete.com/posts/2013/12/4/javascript_game_foundations_the_game_loop/
 
-var initGameloop = function (newTime) {
-    lastTime = newTime;
-    game.renderer.render(game.stage);
-    frameId = requestAnimationFrame(gameloop);
+// TODO Jedes Feld hat jetzt einen Loop = überflüssige Arbeit
+// vllt. einen "requestAnimationFrame" Loop, der alle Spiele Rendert?
+
+Game.prototype.initLoops = function () {
+    this.accumulator = 0; // Sammelt die Frame-Zeiten
+    this.passed = 0; // Summe aller Frame-Zeiten
+    this.slowFactor = 1; // Slow-motion Faktor
+    this.lastTime = 0;
+
+    this.frameId;
+
+    this.initGameloop = this.initGameloop.bind(this);
+    this.gameloop = this.gameloop.bind(this);
+    this.renderloop = this.renderloop.bind(this);
+};
+// Erster Frame, um initiale Zeit zu setzen
+Game.prototype.initGameloop = function (newTime) {
+    this.lastTime = newTime;
+    this.renderer.render(this.stage);
+    this.frameId = requestAnimationFrame(this.gameloop);
 };
 // Loop mit allen updates
-var gameloop = function (newTime) {
-    var slowStep = step * slowFactor;
+Game.prototype.gameloop = function (newTime) {
+    var slowStep = game.step * this.slowFactor;
 
-    var frameTime = newTime - lastTime;
+    var frameTime = newTime - this.lastTime;
     if (frameTime > 500) {
         // Spikes abfangen
         frameTime = 500;
     }
-    lastTime = newTime;
-    accumulator += frameTime;
-    passed += frameTime;
+    this.lastTime = newTime;
+    this.accumulator += frameTime;
+    this.passed += frameTime;
 
-    while (accumulator >= slowStep) {
-        simulate(step);
+    while (this.accumulator >= slowStep) {
+        this.simulate(game.step);
 
-        accumulator -= slowStep;
+        this.accumulator -= slowStep;
     }
-    //Auf Buttonklick gegner spielfeld einfach im gleichen canvas rendern. Hier dann die unterscheidung welche daten gerendert werden sollen?!!
-    updateAnimation(passed / slowFactor, accumulator / slowFactor);
 
+    this.updateAnimation(this.passed / this.slowFactor, this.accumulator / this.slowFactor);
 
-    game.renderer.render(game.stage);
-    frameId = requestAnimationFrame(gameloop);
+    this.renderer.render(this.stage);
+    this.frameId = requestAnimationFrame(this.gameloop);
 };
 // Loop nur zum rendern der Stage
-var renderloop = function () {
-    game.renderer.render(game.stage);
-    frameId = requestAnimationFrame(renderloop);
+Game.prototype.renderloop = function () {
+    this.renderer.render(this.stage);
+    this.frameId = requestAnimationFrame(this.renderloop);
 };
 
-game.startGameLoop = function () {
-    requestAnimationFrame(initGameloop);
-};
-game.stopGameLoop = function () {
-    cancelAnimationFrame(frameId);
+Game.prototype.startGameLoop = function () {
+    requestAnimationFrame(this.initGameloop);
 };
 
-game.pauseLoop = function () {
-    game.isPaused = true;
-    cancelAnimationFrame(frameId);
-    frameId = requestAnimationFrame(renderloop);
+Game.prototype.stopGameLoop = function () {
+    cancelAnimationFrame(this.frameId);
 };
-game.resumeLoop = function () {
-    game.isPaused = false;
-    cancelAnimationFrame(frameId);
-    game.startGameLoop();
+
+Game.prototype.pauseLoop = function () {
+    this.isPaused = true;
+    cancelAnimationFrame(this.frameId);
+    this.frameId = requestAnimationFrame(this.renderloop);
+};
+Game.prototype.resumeLoop = function () {
+    this.isPaused = false;
+    cancelAnimationFrame(this.frameId);
+    this.startGameLoop();
 };
 
 // Physik update / Kollisionsabfragen
-var simulate = function (dt) {
+Game.prototype.simulate = function (dt) {
     var i, j, tower, mob, dist, collArray;
-    var towers = game.towers.getArray();
-    var mobs = game.mobs.getArray();
+    var towers = this.towers.getArray();
+    var mobs = this.mobs.getArray();
 
-    game.updateWave();
+//    game.updateWave();
 
     for (i = 0; i < towers.length; i++) {
         tower = towers[i];
@@ -128,7 +99,7 @@ var simulate = function (dt) {
             continue;
         }
 
-        collArray = game.collGrid.getCollisionsAt(mob.cx, mob.cy).getArray();
+        collArray = this.collGrid.getCollisionsAt(mob.cx, mob.cy).getArray();
 
         for (j = 0; j < collArray.length; j++) {
             tower = collArray[j];
@@ -153,17 +124,16 @@ var simulate = function (dt) {
 };
 
 // Grafik update
-var updateAnimation = function (time, accumulator) {
-    var mobs = game.mobs.getArray();
-    var i;
-    var mob;
+Game.prototype.updateAnimation = function (time, accumulator) {
+    var mobs = this.mobs.getArray();
+    var i, mob;
     for (i = 0; i < mobs.length; i++) {
         mob = mobs[i];
         mob.simulateToAge(mob.age + accumulator);
         mob.update();
 
     }
-    var towers = game.towers.getArray();
+    var towers = this.towers.getArray();
     var tower;
     for (i = 0; i < towers.length; i++) {
         tower = towers[i];
@@ -172,9 +142,7 @@ var updateAnimation = function (time, accumulator) {
 
 };
 
-var gamelifeEl = document.getElementById("gameLife");
-var gameCashEl = document.getElementById("gameCash");
-var gameRoundEl = document.getElementById("gameRound");
+
 
 var colorMatrix = new PIXI.filters.ColorMatrixFilter();
 //colorMatrix.brightness(1.5);
@@ -193,20 +161,20 @@ game.lose = function () {
 };
 
 game.win = function () {
-    if(game.isLost) return;
+    if (game.isLost) return;
     ui.winGame();
 };
 
 
 // ==== Game Life ====
-game.hit = function (power) {
-    game.life -= power;
+Game.prototype.hit = function (power) {
+    this.life -= power;
     if (game.life <= 0) {
         game.life = 0;
         game.lose();
     }
     game.updateLife();
-    if(ui.canVibrate) navigator.vibrate(40);
+    if (ui.canVibrate) navigator.vibrate(40);
 };
 
 game.heal = function (power) {
@@ -220,22 +188,18 @@ game.updateLife = function () {
 };
 
 // ==== Game Cash ====
-game.addCash = function (c) {
-    game.cash += c;
-    game.updateCash();
+Game.prototype.addCash = function (c) {
+    this.cash += c;
+    ui.updateCash();
 };
 
-game.hasCash = function (price) {
-    return game.cash >= price;
+Game.prototype.removeCash = function (c) {
+    this.cash -= c;
+    ui.updateCash();
 };
 
-game.removeCash = function (c) {
-    game.cash -= c;
-    game.updateCash();
-};
-
-game.updateCash = function () {
-    gameCashEl.textContent = game.cash;
+Game.prototype.hasCash = function (price) {
+    return this.cash >= price;
 };
 
 // ==== Game Wave ====

@@ -7,40 +7,41 @@ var PFfinder = new PF.AStarFinder({
 });
 
 
-game.findPath = function () {
+Game.prototype.findPath = function () {
     return PFfinder.findPath(
             game.map.start.x,
             game.map.start.y,
             game.map.finish.x,
             game.map.finish.y,
-            game.PFgrid.clone());
+            this.PFgrid.clone());
 };
 
-game.drawPath = function () {
-    game.clearPath();
-    var path = game.path;
-    var cont = game.pathCont;
-    var tex = texFromCache("pathMark");
-    var spr = null;
+Game.prototype.drawPath = function () {
+    this.clearPath();
+    var path = this.path;
+    var cont = this.pathCon;
+    var spr;
     // Pfad malen
     for (var i = 0; i < path.length; i++) {
-        spr = new PIXI.Sprite(tex);
+        spr = new PIXI.Sprite(game.tex.pathMark);
         spr.x = utils.cell2Pos(path[i][0]);
         spr.y = utils.cell2Pos(path[i][1]);
         cont.addChild(spr);
     }
 };
 
-game.clearPath = function () {
-    // Alte Sprites löschen
-    var cont = game.pathCont;
+Game.prototype.clearPath = function () {
+    var cont = this.pathCon;
     for (var i = 0; i < cont.children.length; i++) {
+        // Alte Sprites löschen
         cont.children[i].destroy();
     }
     cont.removeChildren();
 };
 // Zelle für Pfad und Tower sperren
+/*
 game.lockCell = function (cx, cy) {
     game.collGrid.lockAt(cx, cy);
     game.PFgrid.setWalkableAt(cx, cy, false);
 };
+*/
