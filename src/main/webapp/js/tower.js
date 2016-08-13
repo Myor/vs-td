@@ -89,13 +89,13 @@ Game.prototype.removeTowerAt = function (cx, cy) {
 };
 
 Game.prototype.upgradeTower = function (tower) {
-    var nextType = tower.type.next;
+    var nextType = towerTypes[tower.type.next];
 
     if (!this.hasCash(nextType.price)) return;
     this.removeCash(nextType.price);
 
-    this.deleteTower(tower);
-    this.addTowerAt(nextType, tower.cx, tower.cy);
+    this.emit("removeTower", tower.cx, tower.cy);
+    this.emit("addTower", tower.type.next, tower.cx, tower.cy);
 };
 
 

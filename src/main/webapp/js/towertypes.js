@@ -149,8 +149,6 @@ towerTypes[2] = {
 
 };
 
-towerTypes[1].next = towerTypes[2];
-
 towerTypes[3] = {
     name: "Sharpshooter",
     desc: "Slow Long Range Attack",
@@ -277,8 +275,6 @@ towerTypes[4] = {
     }
 };
 
-towerTypes[3].next = towerTypes[4];
-
 towerTypes[5] = {
     name: "Slime",
     desc: "Can be placed on creep path. Will damage on contact.",
@@ -314,8 +310,6 @@ towerTypes[6] = {
         }
     }
 };
-
-towerTypes[5].next = towerTypes[6];
 
 towerTypes[7] = {
     name: "AoE Tower",
@@ -441,8 +435,6 @@ towerTypes[8] = {
     }
 };
 
-towerTypes[7].next = towerTypes[8];
-
 towerTypes[9] = {
     name: "Ufo",
     desc: "Shoots Lightning Bolts",
@@ -513,7 +505,7 @@ towerTypes[9] = {
 towerTypes[10] = {
     name: "Ufo 2",
     desc: "Shoots Lightning Bolts",
-    level: 0,
+    level: 1,
     isBlocking: true,
     radius: 5,
     freq: 10,
@@ -577,8 +569,6 @@ towerTypes[10] = {
     }
 };
 
-towerTypes[9].next = towerTypes[10];
-
 towerTypes[11] = {
     name: "Aura Tower",
     desc: "Boosts stats of surrounding towers",
@@ -624,7 +614,7 @@ towerTypes[11] = {
 towerTypes[12] = {
     name: "Aura Tower 2",
     desc: "Boosts stats of surrounding towers",
-    level: 0,
+    level: 1,
     isBlocking: true,
     radius: 2,
     price: 1500,
@@ -663,4 +653,9 @@ towerTypes[12] = {
     }
 };
 
-towerTypes[11].next = towerTypes[12];
+towerTypes[1].next = 2;
+towerTypes[3].next = 4;
+towerTypes[5].next = 6;
+towerTypes[7].next = 8;
+towerTypes[9].next = 10;
+towerTypes[11].next = 12;

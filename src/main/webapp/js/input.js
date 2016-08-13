@@ -71,9 +71,9 @@ cancelPlaceBtn.addEventListener("click", towerCancelHandler);
 tSellBtn.addEventListener("click", sellHandler);
 //// Tower aim setzen
 //tAimDiv.addEventListener("click", setAimHandler);
-//// Tower upgraden
-//tNextBtn.addEventListener("click", upgradeHandler);
-//
+// Tower upgraden
+tNextBtn.addEventListener("click", upgradeHandler);
+
 //// Nächste Wave enquen
 //nextWaveButton.addEventListener("click", waveHandler);
 //// Spiel Pausieren
@@ -200,9 +200,9 @@ var fillInfoSelected = function (tower) {
     tRadius.textContent = "radius" in type ? type.radius : "-";
     // Upgrades
     tCurrentLvl.textContent = type.level;
-    var hasNext = type.next != null;
-    tNextLvl.textContent = hasNext ? type.next.level : "-";
-    tNextPrice.textContent = hasNext ? type.next.price : "-";
+    var hasNext = type.next !== undefined;
+    tNextLvl.textContent = hasNext ? towerTypes[type.next].level : "-";
+    tNextPrice.textContent = hasNext ? towerTypes[type.next].price : "-";
     tNextBtn.disabled = hasNext ? false : true;
 
 
@@ -424,9 +424,10 @@ var setAimHandler = function (e) {
     updateAimBtns(newAimFunc.id);
 };
 
-var upgradeHandler = function () {
-    var tower = game.getSelectedTower();
-    var newTower = game.upgradeTower(tower);
-    game.setSelectedTower(newTower);
-};
+function upgradeHandler() {
+    var tower = game.local.getSelectedTower();
+    if (tower === null) return;
+    game.local.upgradeTower(tower);
+    game.local.setSelectedTower(game.local.getTowerAt(tower.cx, tower.cy));
+}
 
