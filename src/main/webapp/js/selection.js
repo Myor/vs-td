@@ -25,11 +25,15 @@ Game.prototype.setSelectedTower = function (tower) {
     if (tower === null) {
         // Kreis ausblenden
         this.hideSelection();
+        
+        ui.hideSelectedInfo();
     } else if (this.selectedTower !== tower) {
         this.drawSelectCircle(tower.type);
         this.moveSelectionTo(tower.cx, tower.cy);
         // Kreis anzeigen
         this.showSelection();
+        
+        ui.showSelectedInfo(tower);
     }
     this.selectedTower = tower;
 };

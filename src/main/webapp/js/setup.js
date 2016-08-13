@@ -57,6 +57,8 @@ game.setup = function () {
     game.local.initGame();
     game.local.initLoops();
     game.local.startGameLoop();
+    
+    game.setupInput();
 };
 
 // Spielfeld Konstruktor
