@@ -11,7 +11,11 @@
  };*/
 
 Game.prototype.spawnMob = function (typeId) {
-  // TODO Preis prüfen
+  var type = mobTypes[typeId];
+  // Preis zahlen
+  if (!this.hasCash(type.price)) return;
+  this.removeCash(type.price);
+
   // TODO muss zu peer gesendet werden, nicht lokal
   game.local.emit("spawnMob", typeId);
 };

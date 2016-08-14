@@ -11,8 +11,6 @@ Game.prototype.buyTowerAt = function (typeID, cx, cy) {
   }
   var type = towerTypes[typeID];
 
-  if (!this.hasCash(type.price)) return;
-
   // Wenn Tower den Weg blockieren kann, Weg testen
   if (type.isBlocking) {
     this.PFgrid.setWalkableAt(cx, cy, false);
@@ -23,6 +21,8 @@ Game.prototype.buyTowerAt = function (typeID, cx, cy) {
       return;
     }
   }
+  // Preis zahlen
+  if (!this.hasCash(type.price)) return;
   this.removeCash(type.price);
 
   this.emit("addTower", typeID, cx, cy);
@@ -149,7 +149,6 @@ var Tower = function (gameRef, type, cx, cy) {
 
   this.game.towersCon.addChild(this.spr);
   Object.assign(this, type.extend);
-  ;
   this.init();
 };
 

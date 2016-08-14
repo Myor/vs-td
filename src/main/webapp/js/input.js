@@ -54,8 +54,8 @@ var tCurrentLvl = towerStats.querySelector(".tCurrentLvl");
 var tNextBtn = towerStats.querySelector(".tNextBtn");
 var tNextLvl = towerStats.querySelector(".tNextLvl");
 var tNextPrice = towerStats.querySelector(".tNextPrice");
-var tAimDiv = towerStats.querySelector(".tAimDiv");
-var tAimBtnList = tAimDiv.querySelectorAll("button");
+//var tAimDiv = towerStats.querySelector(".tAimDiv");
+//var tAimBtnList = tAimDiv.querySelectorAll("button");
 var tSellBtn = towerStats.querySelector(".tSellBtn");
 var tSellPrice = towerStats.querySelector(".tSellPrice");
 
@@ -162,17 +162,18 @@ var fillInfoSelected = function (tower) {
 
 
   // Aim Buttons ein / ausblenden
-  if (tower.aimFunc === null) {
-    tAimDiv.classList.add("hidden");
-  } else {
-    tAimDiv.classList.remove("hidden");
-    updateAimBtns(tower.aimFunc.id);
-  }
+//  if (tower.aimFunc === null) {
+//    tAimDiv.classList.add("hidden");
+//  } else {
+//    tAimDiv.classList.remove("hidden");
+//    updateAimBtns(tower.aimFunc.id);
+//  }
 
   tSellPrice.textContent = type.sellPrice;
 };
 
 // Markiert aim-Button mit Class bzw. entfernt Class
+/*
 var updateAimBtns = function (newID) {
   for (var i = 0; i < tAimBtnList.length; i++) {
     var btn = tAimBtnList[i];
@@ -181,7 +182,7 @@ var updateAimBtns = function (newID) {
       btn.classList.add("active");
     }
   }
-};
+};*/
 
 // ===== Button Handler =====
 var waveHandler = function (e) {
@@ -371,6 +372,7 @@ function sellHandler() {
 
 }
 // Setzt aim-Funktion von ausgewähltem Tower
+/*
 var setAimHandler = function (e) {
   if (!e.target.matches("button")) return;
   var tower = game.getSelectedTower();
@@ -378,7 +380,7 @@ var setAimHandler = function (e) {
   tower.aimFunc = newAimFunc;
   updateAimBtns(newAimFunc.id);
 };
-
+*/
 function upgradeHandler() {
   var tower = game.local.getSelectedTower();
   if (tower === null) return;
