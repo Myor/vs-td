@@ -5,8 +5,8 @@ function id(selector) {
 }
 
 // Stats
-var lifeEl = id("localLife");
-var cashEl = id("localCash");
+var localLifeEl = id("localLife");
+var localCashEl = id("localCash");
 //var roundEl = id("localRound");
 
 // Menu
@@ -62,6 +62,8 @@ var tSellPrice = towerStats.querySelector(".tSellPrice");
 // Mobs
 var mobList = id("mobs");
 
+// Remote
+var remoteLifeEl = id("remoteLife");
 
 // ===== Events bei statischen Elementen =====
 //// PlayButton
@@ -109,13 +111,15 @@ ui.setupInput = function () {
 };
 
 ui.updateCash = function () {
-  cashEl.textContent = game.local.cash;
+  localCashEl.textContent = game.local.cash;
 };
 
-ui.updateLife = function () {
-  lifeEl.textContent = game.local.life;
+ui.updateLocalLife = function () {
+  localLifeEl.textContent = game.local.life;
 };
-
+ui.updateRemoteLife = function () {
+  remoteLifeEl.textContent = game.remote.life;
+};
 // ===== Menüs =====
 
 ui.showSelectedInfo = function (tower) {

@@ -149,15 +149,23 @@ Game.prototype.updateAnimation = function (passedTime, accumulator) {
 //};
 
 // ==== Game Life ====
-Game.prototype.hitHandler = function () {
+Game.prototype.localHit = function () {
   this.life -= 1;
   if (this.life <= 0) {
     this.life = 0;
     console.log("lose");
 //        game.lose();
   }
-  ui.updateLife();
+  ui.updateLocalLife();
   if (ui.canVibrate) navigator.vibrate(40);
+};
+
+Game.prototype.remoteHit = function () {
+  this.life -= 1;
+  if (this.life <= 0) {
+    this.life = 0;
+  }
+  ui.updateRemoteLife();
 };
 
 // ==== Game Cash ====

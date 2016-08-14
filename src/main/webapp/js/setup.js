@@ -53,41 +53,36 @@ game.setup = function () {
   game.setupMapTextures();
   game.map = game.maps[0];
   game.local = new Game(document.getElementById("localGameField"));
+  game.local.life = 100;
+  game.local.addCash(9999);
   game.local.initGame();
   game.local.initLocal();
   game.local.initLoops();
   game.local.startGameLoop();
 
   game.remote = new Game(document.getElementById("remoteGameField"));
+  game.remote.life = 100;
   game.remote.initGame();
   game.remote.initRemote();
   game.remote.initLoops();
   game.remote.startGameLoop();
 
+  ui.updateLocalLife();
+  ui.updateRemoteLife();
   ui.setupInput();
 };
 
 // Spielfeld Konstruktor
 function Game(el) {
   this.containerEl = el;
+  this.cash = 0;
+  this.life = 0;
 }
 // Game erweitert den EventEmitter von PIXI
 Game.prototype = new PIXI.utils.EventEmitter();
 Game.prototype.constructor = Game;
 
 Game.prototype.initGame = function () {
-
-  this.life = 100;
-  this.cash = 4242;
-//    this.updateLife();
-//    this.updateCash();
-
-  // Waves
-//    this.groupQueue = new Queue();
-//    this.currentWaveID = -1;
-//    this.isWaveActive = false;
-//    this.currentGroup = null;
-//    this.currentDelay = 0;
 
   this.renderer = new PIXI.WebGLRenderer(game.resX, game.resY, {
     antialias: true
@@ -100,7 +95,6 @@ Game.prototype.initGame = function () {
   var rec = this.canvasEl.getBoundingClientRect();
   this.offsetX = rec.left;
   this.offsetY = rec.top;
-//    this.scale = game.resX / rec.width;
 
   // Collision-Grids
   this.collGrid = new CollisionGrid(game.cellsX, game.cellsY);
@@ -124,7 +118,6 @@ Game.prototype.initGame = function () {
   this.towers = new FastSet();
   this.mobs = new FastSet();
   this.mobPool = new Pool(Mob, this, 10);
-//    this.mobQueue = new Queue();
 
   // Grafik für Radius-anzeige
   this.selectCircleGr = new PIXI.Graphics();
@@ -153,11 +146,6 @@ Game.prototype.initGame = function () {
   this.path = this.findPath();
   this.drawPath();
 
-//  this.isPaused = false;
-//  this.isLost = false;
-//    this.updateRound();
-//    ui.reset();
-
   this.on("addTower", this.addTowerAt, this);
   this.on("removeTower", this.removeTower, this);
 
@@ -173,7 +161,7 @@ Game.prototype.initLocal = function () {
 
   this.on("killMob", this.killMob, this);
 
-  this.on("hit", this.hitHandler, this);
+  this.on("gameHit", this.localHit, this);
 
   // Events zu Peer senden
   // this.on("addTower", ...);
@@ -182,11 +170,13 @@ Game.prototype.initLocal = function () {
 Game.prototype.initRemote = function () {
   // Events von Peer empfangen und lokal emit
   // Dieser Kram muss übers netzwerk laufen
-  game.local.on("addTower", game.remote.addTowerAt, this);
-  game.local.on("removeTower", game.remote.removeTower, this);
+  game.local.on("addTower", this.addTowerAt, this);
+  game.local.on("removeTower", this.removeTower, this);
 
-  game.local.on("addMob", game.remote.addMob, this);
-  game.local.on("removeMob", game.remote.removeMob, this);
+  game.local.on("addMob", this.addMob, this);
+  game.local.on("removeMob", this.removeMob, this);
+  
+  game.local.on("gameHit", this.remoteHit, this);
 };
 
 Game.prototype.destroyGame = function () {
