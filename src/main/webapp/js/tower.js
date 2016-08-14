@@ -1,7 +1,7 @@
 "use strict";
 
 // Setzt Tower, wenn möglich
-Game.prototype.tryAddTowerAt = function (typeID, cx, cy) {
+Game.prototype.buyTowerAt = function (typeID, cx, cy) {
   // Tower vorhanden bzw. start & ziel
   if (this.collGrid.islockedAt(cx, cy)
           || this.collGrid.getTowerAt(cx, cy) !== null
@@ -13,9 +13,8 @@ Game.prototype.tryAddTowerAt = function (typeID, cx, cy) {
 
   if (!this.hasCash(type.price)) return;
 
-  // Wenn Tower den Weg blockieren kann
+  // Wenn Tower den Weg blockieren kann, Weg testen
   if (type.isBlocking) {
-    // Weg neu berechnen
     this.PFgrid.setWalkableAt(cx, cy, false);
     var newPath = this.findPath();
     // Nur setzen, wenn Weg vorhanden
@@ -23,8 +22,6 @@ Game.prototype.tryAddTowerAt = function (typeID, cx, cy) {
       this.PFgrid.setWalkableAt(cx, cy, true);
       return;
     }
-    this.path = newPath;
-    this.drawPath();
   }
   this.removeCash(type.price);
 
@@ -36,21 +33,22 @@ Game.prototype.addTowerAt = function (typeID, cx, cy) {
   var type = towerTypes[typeID];
 
   var tower = new Tower(this, type, cx, cy);
-  this.towers.add(tower);
+
+  // Pfad blockieren, wenn nötig
+  if (tower.type.isBlocking) {
+    this.PFgrid.setWalkableAt(tower.cx, tower.cy, false);
+    this.path = this.findPath();
+    this.drawPath();
+  }
 
   if (isBuffTower(tower)) {
     this.buffColGrid.addTower(tower);
   }
-  this.collGrid.addTower(tower);
-
   this.calculateBuffs();
 
-  // Blockieren, wenn nötig
-  if (type.isBlocking) {
-    this.PFgrid.setWalkableAt(cx, cy, false);
-  }
+  this.collGrid.addTower(tower);
 
-  return tower;
+  this.towers.add(tower);
 };
 
 // Tower für Zelle finden, null wenn keiner vorhanden
@@ -61,12 +59,14 @@ Game.prototype.getTowerAt = function (cx, cy) {
   return null;
 };
 
+// Verkauft Tower
 Game.prototype.sellTower = function (tower) {
   this.addCash(tower.type.sellPrice);
 
   this.emit("removeTower", this.towers.getIndex(tower));
 };
 
+// Entfernt Tower
 Game.prototype.removeTower = function (index) {
   var tower = this.towers.getAtIndex(index);
 
@@ -76,9 +76,8 @@ Game.prototype.removeTower = function (index) {
     this.path = this.findPath();
     this.drawPath();
   }
-
+  // Wenn Bufftower enternt - Buffs neu berechnen
   if (isBuffTower(tower)) {
-    // Wenn Bufftower enternt - Buffs neu berechnen
     this.buffColGrid.deleteTower(tower);
     this.calculateBuffs();
   }
@@ -98,7 +97,7 @@ Game.prototype.upgradeTower = function (tower) {
   this.emit("addTower", tower.type.next, tower.cx, tower.cy);
 };
 
-
+// Bonus Tower neu gerechnen
 Game.prototype.calculateBuffs = function () {
   var towers = this.towers.getArray();
   var tower;

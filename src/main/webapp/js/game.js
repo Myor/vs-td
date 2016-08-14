@@ -149,7 +149,6 @@ Game.prototype.updateAnimation = function (passedTime, accumulator) {
 //};
 
 // ==== Game Life ====
-
 Game.prototype.hitHandler = function () {
   this.life -= 1;
   if (this.life <= 0) {

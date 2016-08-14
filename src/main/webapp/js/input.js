@@ -357,7 +357,7 @@ function updatePlace(cx, cy) {
 // Versuchen einen Tower zu setzen
 function tryPlace(cx, cy) {
   if (game.fieldRect.contains(cx, cy)) {
-    game.local.tryAddTowerAt(placeType, cx, cy);
+    game.local.buyTowerAt(placeType, cx, cy);
   }
 }
 
