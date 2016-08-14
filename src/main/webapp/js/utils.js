@@ -35,9 +35,10 @@ FastSet.prototype.isEmpty = function () {
 // Objekt Pool, um den Garbage Collector zu schonen
 // Class ist der Konstruktor
 
-var Pool = function (Class, allocSize) {
+var Pool = function (Class, arg, allocSize) {
     this.pool = [];
     this.Class = Class;
+    this.arg = arg;
     this.n = allocSize;
 };
 Pool.prototype.getObj = function () {
@@ -49,7 +50,7 @@ Pool.prototype.getObj = function () {
 
 Pool.prototype.alloc = function () {
     for (var i = 0; i < this.n; i++) {
-        this.pool.push(new this.Class());
+        this.pool.push(new this.Class(this.arg));
     }
 };
 Pool.prototype.returnObj = function (o) {

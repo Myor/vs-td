@@ -55,9 +55,10 @@ game.setup = function () {
     game.map = game.maps[0];
     game.local = new Game(document.getElementById("localGameField"));
     game.local.initGame();
+    game.local.initLocal();
     game.local.initLoops();
     game.local.startGameLoop();
-    
+
     game.setupInput();
 };
 
@@ -118,7 +119,7 @@ Game.prototype.initGame = function () {
 
     this.towers = new FastSet();
     this.mobs = new FastSet();
-    this.mobPool = new Pool(Mob, 10);
+    this.mobPool = new Pool(Mob, this, 10);
 //    this.mobQueue = new Queue();
 
     // Grafik für Radius-anzeige
@@ -158,6 +159,22 @@ Game.prototype.initGame = function () {
 
     this.on("addTower", this.addTowerAt, this);
     this.on("removeTower", this.removeTowerAt, this);
+
+    this.on("addMob", this.addMob, this);
+
+};
+
+Game.prototype.initLocal = function () {
+    this.on("spawnMob", function (id) {
+        this.emit("addMob", id);
+    }, this);
+
+    // Events zu Peer senden
+    // this.on("addTower", ...);
+};
+
+Game.prototype.initRemote = function () {
+    // Events von Peer empfangen
 
 };
 

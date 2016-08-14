@@ -59,6 +59,10 @@ var tAimBtnList = tAimDiv.querySelectorAll("button");
 var tSellBtn = towerStats.querySelector(".tSellBtn");
 var tSellPrice = towerStats.querySelector(".tSellPrice");
 
+// Mobs
+var mobList = id("mobs");
+
+
 // ===== Events bei statischen Elementen =====
 //// PlayButton
 //playButton.addEventListener("click", showMapSelect);
@@ -73,6 +77,9 @@ tSellBtn.addEventListener("click", sellHandler);
 //tAimDiv.addEventListener("click", setAimHandler);
 // Tower upgraden
 tNextBtn.addEventListener("click", upgradeHandler);
+
+// Mob spawn
+mobList.addEventListener("click", mobListHandler);
 
 //// Nächste Wave enquen
 //nextWaveButton.addEventListener("click", waveHandler);
@@ -431,3 +438,12 @@ function upgradeHandler() {
     game.local.setSelectedTower(game.local.getTowerAt(tower.cx, tower.cy));
 }
 
+/* ====== Mob Spawn Handler ====== */
+
+function mobListHandler(e) {
+    // Klicks auf Mob-Button
+    if (e.target.matches("button.mob")) {
+        var mobType = Number(e.target.dataset.type);
+        game.local.spawnMob(mobType);
+    }
+}

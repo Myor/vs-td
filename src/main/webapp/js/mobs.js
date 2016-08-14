@@ -1,7 +1,36 @@
 "use strict";
 
+
+// Nimmt ein Mob aus dem Pool und schiebt ihn in den Queue
+game.enqueMobs = function (typeID, num) {
+    for (var i = 0; i < num; i++) {
+        var mob = game.mobPool.getObj();
+        mob.type = mobTypes[typeID];
+        game.mobQueue.enqueue(mob);
+    }
+};
+
+Game.prototype.spawnMob = function (typeID) {
+    // TODO Preis prüfen
+    // TODO muss zu peer gesendet werden, nicht lokal
+    game.local.emit("spawnMob", typeID);
+};
+// Mob sichtbar machen und zum Update loop hinzufügen
+Game.prototype.addMob = function (typeID) {
+    var mob = this.mobPool.getObj();
+    mob.type = mobTypes[typeID];
+    mob.init();
+    this.mobs.add(mob);
+};
+// Mob zurück in den Pool schieben und aus Update loop löschen
+game.removeMob = function (mob) {
+    game.mobPool.returnObj(mob);
+    game.mobs.remove(mob);
+};
+
 // Konstruktor erstellt "unsichtbaren" Mob
-var Mob = function () {
+var Mob = function (gameRef) {
+    this.game = gameRef;
     this.type = null;
     // Textur
     this.spr = new PIXI.Sprite(game.tex.mobTexEmpty);
@@ -10,8 +39,8 @@ var Mob = function () {
     // Textur Lebens-balken
     this.barSpr = new PIXI.Sprite(game.tex.mobBarTexEmpty);
     this.barSpr.x = this.barSpr.y = -100;
-    game.mobsCon.addChild(this.spr);
-    game.mobsBarCon.addChild(this.barSpr);
+    this.game.mobsCon.addChild(this.spr);
+    this.game.mobsBarCon.addChild(this.barSpr);
 };
 
 // Alles leeren und sichtbar machen (textur tauschen)
@@ -39,14 +68,15 @@ Mob.prototype.kill = function () {
 // Komplett löschen
 Mob.prototype.destroy = function () {
     this.type = null;
-    game.mobsCon.removeChild(this.spr);
-    game.mobsBarCon.removeChild(this.barSpr);
+    this.game.mobsCon.removeChild(this.spr);
+    this.game.mobsBarCon.removeChild(this.barSpr);
     this.spr.destroy();
     this.barSpr.destroy();
 };
 
 // Mob-daten bis age berechnen
 Mob.prototype.simulateToAge = function (age) {
+    var path = this.game.path;
     // Zurückgelegter Weg
     var covered = age / this.type.speed;
     // In Zelle + Nachkommastelle (zum interpolieren) Teilen
@@ -54,14 +84,14 @@ Mob.prototype.simulateToAge = function (age) {
     var frac = covered - cell;
     // Zelle aus Pfad lesen
     var prevX, prevY, nextX, nextY;
-    if (cell + 1 < game.path.length) {
-        prevX = game.path[cell][0];
-        prevY = game.path[cell][1];
-        nextX = game.path[cell + 1][0];
-        nextY = game.path[cell + 1][1];
+    if (cell + 1 < path.length) {
+        prevX = path[cell][0];
+        prevY = path[cell][1];
+        nextX = path[cell + 1][0];
+        nextY = path[cell + 1][1];
     } else {
-        prevX = nextX = game.path[game.path.length - 1][0];
-        prevY = nextY = game.path[game.path.length - 1][1];
+        prevX = nextX = path[path.length - 1][0];
+        prevY = nextY = path[path.length - 1][1];
     }
     // Laufrichtung zur nächsten Zelle (-1 -> links, 0 -> gleich, 1 -> rechts)
     var dirX = nextX - prevX;
@@ -96,29 +126,8 @@ Mob.prototype.hit = function (power, by) {
     this.life -= power;
     if (this.life <= 0) {
         by.killCount++;
-        game.addCash(this.type.cash);
+        this.game.addCash(this.type.cash);
         this.kill();
     }
 };
-
-
-    // Nimmt ein Mob aus dem Pool und schiebt ihn in den Queue
-game.enqueMobs = function (typeID, num) {
-    for (var i = 0; i < num; i++) {
-        var mob = game.mobPool.getObj();
-        mob.type = mobTypes[typeID];
-        game.mobQueue.enqueue(mob);
-    }
-};
-// Mob sichtbar machen und zum Update loop hinzufügen
-game.addMob = function (mob) {
-    mob.init();
-    game.mobs.add(mob);
-};
-// Mob zurück in den Pool schieben und aus Update loop löschen
-game.removeMob = function (mob) {
-    game.mobPool.returnObj(mob);
-    game.mobs.remove(mob);
-};
-
 
