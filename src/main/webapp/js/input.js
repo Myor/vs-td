@@ -5,7 +5,7 @@ function id(selector) {
 }
 
 // Stats
-//var lifeEl = id("localLife");
+var lifeEl = id("localLife");
 var cashEl = id("localCash");
 //var roundEl = id("localRound");
 
@@ -94,41 +94,11 @@ mobList.addEventListener("click", mobListHandler);
 //exitLoseBtn.addEventListener("click", ui.exitToMenu);
 //exitWinBtn.addEventListener("click", ui.exitToMenu);
 
-
-var showMapSelect = function () {
-    mapSelectDiv.classList.remove("hideMapSelect");
-};
-
-var startMap1 = function () {
-    game.map = game.maps[0];
-    setGameMode();
-    showGame();
-};
-
-var startMap2 = function () {
-    game.map = game.maps[1];
-    setGameMode();
-    showGame();
-};
-
-var showGame = function () {
-    mapSelectDiv.classList.add("hideMapSelect");
-    mainMenu.classList.add("hidden");
-    gameWrapper.classList.remove("hidden");
-
-    game.startGame();
-};
-
-var setGameMode = function () {
-    if (inputGameMode1.checked) {
-        game.cash = 70;
-    } else {
-        game.cash = Infinity;
-    }
-};
+var ui = {};
+ui.canVibrate = window.navigator.vibrate !== undefined;
 
 // ===== Events dynamisch erstellte Elemente =====
-game.setupInput = function () {
+ui.setupInput = function () {
     // Kein Kontextmenü
     game.local.canvasEl.addEventListener("contextmenu", function (e) {
         e.preventDefault();
@@ -138,37 +108,15 @@ game.setupInput = function () {
     game.local.canvasEl.addEventListener("touchend", touchHandler);
 };
 
-
-var ui = {};
-ui.canVibrate = window.navigator.vibrate !== undefined;
-
 ui.updateCash = function () {
     cashEl.textContent = game.local.cash;
 };
 
+ui.updateLife = function () {
+    lifeEl.textContent = game.local.life;
+};
+
 // ===== Menüs =====
-
-ui.showMenu = function () {
-    game.setSelectedTower(null);
-    towerMenu.classList.remove("hideLeft");
-};
-
-ui.exitToMenu = function () {
-    mainMenu.classList.remove("hidden");
-    gameWrapper.classList.add("hidden");
-    game.exitGame();
-};
-
-ui.hideMenu = function () {
-    ui.hideInfo();
-    towerMenu.classList.add("hideLeft");
-};
-ui.showInfo = function () {
-    towerInfo.classList.remove("infoHide");
-};
-ui.hideInfo = function () {
-    towerInfo.classList.add("infoHide");
-};
 
 ui.showSelectedInfo = function (tower) {
     fillInfoSelected(tower);
@@ -305,7 +253,7 @@ function touchHandler(e) {
     clickAt(t.pageX - game.local.offsetX, t.pageY - game.local.offsetY);
 }
 
-var clickAt = function (x, y) {
+function clickAt(x, y) {
     // Menü zuklappen
 //    ui.hideMenu();
     // Nur wenn kein Tower gesetzt wird
@@ -314,7 +262,7 @@ var clickAt = function (x, y) {
     var cx = utils.input2Cell(x);
     var cy = utils.input2Cell(y);
     game.local.setSelectedTower(game.local.getTowerAt(cx, cy));
-};
+}
 
 // ====== Tower Placing =======
 // Maus und Touch haben getrennte Events, welche sich leicht unterschiedlich Verhalten :-/
@@ -362,18 +310,18 @@ ui.endPlace = function () {
 };
 
 // Events zum Updaten / Beenden beim Placen
-var addPlaceListeners = function () {
+function addPlaceListeners() {
     game.local.canvasEl.addEventListener("mousemove", moveplaceHandlerMouse);
     game.local.canvasEl.addEventListener("mouseup", endPlaceHandlerMouse);
     game.local.canvasEl.addEventListener("touchmove", movePlaceHandlerTouch);
     game.local.canvasEl.addEventListener("touchend", endPlaceHandlerTouch);
-};
-var removePlaceListeners = function () {
+}
+function removePlaceListeners() {
     game.local.canvasEl.removeEventListener("mousemove", moveplaceHandlerMouse);
     game.local.canvasEl.removeEventListener("mouseup", endPlaceHandlerMouse);
     game.local.canvasEl.removeEventListener("touchmove", movePlaceHandlerTouch);
     game.local.canvasEl.removeEventListener("touchend", endPlaceHandlerTouch);
-};
+}
 // == Maus ==
 function moveplaceHandlerMouse(e) {
     updatePlace(utils.input2Cell(e.offsetX), utils.input2Cell(e.offsetY));
@@ -443,7 +391,7 @@ function upgradeHandler() {
 function mobListHandler(e) {
     // Klicks auf Mob-Button
     if (e.target.matches("button.mob")) {
-        var mobType = Number(e.target.dataset.type);
-        game.local.spawnMob(mobType);
+        var typeId = Number(e.target.dataset.type);
+        game.local.spawnMob(typeId);
     }
 }

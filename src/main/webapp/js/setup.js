@@ -58,8 +58,14 @@ game.setup = function () {
     game.local.initLocal();
     game.local.initLoops();
     game.local.startGameLoop();
+    
+    game.remote = new Game(document.getElementById("remoteGameField"));
+    game.remote.initGame();
+    game.remote.initRemote();
+    game.remote.initLoops();
+    game.remote.startGameLoop();
 
-    game.setupInput();
+    ui.setupInput();
 };
 
 // Spielfeld Konstruktor
@@ -150,8 +156,6 @@ Game.prototype.initGame = function () {
     this.path = this.findPath();
     this.drawPath();
 
-//    game.setupInput();
-
     this.isPaused = false;
     this.isLost = false;
 //    this.updateRound();
@@ -161,21 +165,31 @@ Game.prototype.initGame = function () {
     this.on("removeTower", this.removeTowerAt, this);
 
     this.on("addMob", this.addMob, this);
-
+    this.on("removeMob", this.removeMob, this);
 };
 
 Game.prototype.initLocal = function () {
+    
     this.on("spawnMob", function (id) {
         this.emit("addMob", id);
     }, this);
+    
+    this.on("killMob", this.killMob, this);
+    
+    this.on("hit", this.hitHandler, this);
 
     // Events zu Peer senden
     // this.on("addTower", ...);
 };
 
 Game.prototype.initRemote = function () {
-    // Events von Peer empfangen
+    // Events von Peer empfangen und lokal emit
+    // Dieser Kram muss übers netzwerk laufen
+    game.local.on("addTower", game.remote.addTowerAt, this);
+    game.local.on("removeTower", game.remote.removeTowerAt, this);
 
+    game.local.on("addMob", game.remote.addMob, this);
+    game.local.on("removeMob", game.remote.removeMob, this);
 };
 
 Game.prototype.destroyGame = function () {

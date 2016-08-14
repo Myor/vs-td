@@ -2,30 +2,59 @@
 
 
 // Nimmt ein Mob aus dem Pool und schiebt ihn in den Queue
-game.enqueMobs = function (typeID, num) {
+/*game.enqueMobs = function (typeId, num) {
     for (var i = 0; i < num; i++) {
         var mob = game.mobPool.getObj();
-        mob.type = mobTypes[typeID];
+        mob.type = mobTypes[typeId];
         game.mobQueue.enqueue(mob);
     }
-};
+};*/
 
-Game.prototype.spawnMob = function (typeID) {
+Game.prototype.spawnMob = function (typeId) {
     // TODO Preis prüfen
     // TODO muss zu peer gesendet werden, nicht lokal
-    game.local.emit("spawnMob", typeID);
+    game.local.emit("spawnMob", typeId);
 };
-// Mob sichtbar machen und zum Update loop hinzufügen
-Game.prototype.addMob = function (typeID) {
+// Mob aus Pool nehmen und zum Update loop hinzufügen
+Game.prototype.addMob = function (typeId) {
     var mob = this.mobPool.getObj();
-    mob.type = mobTypes[typeID];
+    mob.type = mobTypes[typeId];
     mob.init();
     this.mobs.add(mob);
 };
+
+// Killed Mobs entfernen
+Game.prototype.cleanMobs = function () {
+    // Rückwärts, um keine Elemente zu überspringen
+    var mobs = this.mobs.getArray();
+    var i, mob;
+    for (i = mobs.length - 1; i >= 0; i--) {
+        mob = mobs[i];
+        // Mob töten, wenn im Ziel
+        if (utils.isFinish(mob.cx, mob.cy)) {
+            this.emit("hit");
+            this.emit("killMob", mob, null);
+        }
+        if (mob.isKilled()) {
+            this.emit("removeMob", i);
+        }
+    }
+};
+// Mob als tot kennzeichnen
+Game.prototype.killMob = function (mob, by) {
+    mob.type = null;
+    if (by != null) {
+        by.killCount++;
+        this.addCash(mob.type.cash);
+    }
+};
+
 // Mob zurück in den Pool schieben und aus Update loop löschen
-game.removeMob = function (mob) {
-    game.mobPool.returnObj(mob);
-    game.mobs.remove(mob);
+Game.prototype.removeMob = function (index) {
+    var mob = this.mobs.getAtIndex(index);
+    mob.reset();
+    this.mobPool.returnObj(mob);
+    this.mobs.removeAtIndex(index);
 };
 
 // Konstruktor erstellt "unsichtbaren" Mob
@@ -59,10 +88,13 @@ Mob.prototype.init = function () {
 };
 
 // Unsichtbar machen
-Mob.prototype.kill = function () {
-    this.type = null;
+Mob.prototype.reset = function () {
     this.spr.texture = game.tex.mobTexEmpty;
     this.barSpr.texture = game.tex.mobBarTexEmpty;
+};
+
+Mob.prototype.isKilled = function () {
+    return this.type === null;
 };
 
 // Komplett löschen
@@ -108,7 +140,8 @@ Mob.prototype.simulateToAge = function (age) {
 };
 
 // Daten auf Sprites setzten
-Mob.prototype.update = function () {
+Mob.prototype.update = function (passedTime, accumulator) {
+    this.simulateToAge(this.age + accumulator);
     this.spr.x = this.x + game.cellCenter;
     this.spr.y = this.y + game.cellCenter;
     this.spr.rotation = utils.fastatan2(this.dirY, this.dirX);
@@ -117,17 +150,12 @@ Mob.prototype.update = function () {
     this.barSpr.scale.x = this.life / this.type.life;
 };
 
-Mob.prototype.isKilled = function () {
-    return this.type === null;
-};
-
 Mob.prototype.hit = function (power, by) {
     if (this.isKilled()) return;
     this.life -= power;
     if (this.life <= 0) {
-        by.killCount++;
-        this.game.addCash(this.type.cash);
-        this.kill();
+        this.life = 0;
+        this.game.emit("killMob", this, by);
     }
 };
 

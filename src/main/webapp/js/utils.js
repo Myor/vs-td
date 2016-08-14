@@ -1,34 +1,66 @@
 "use strict";
 
 // Set für schnelles einfügen / löschen
-// Verhindet Duplikate, Sortierung wird nicht beachtet
-// (Arrays sind leider noch die schnellste Datenstruktur in JavaScript :-/)
+// Sortierung wird nicht beachtet
 var FastSet = function () {
     this.arr = [];
 };
 FastSet.prototype.add = function (val) {
-    if (this.arr.indexOf(val) === -1) {
-        this.arr.push(val);
-    }
+    this.arr.push(val);
 };
 FastSet.prototype.remove = function (val) {
     var i = this.arr.indexOf(val);
-    if (i === -1) return;
     var last = this.arr.length - 1;
-    // Letztes Element mit zu löschendem tauschen
     this.arr[i] = this.arr[last];
-    // und weg damit
-    this.arr.length--;
-
+    this.arr.pop();
+    return i;
+};
+FastSet.prototype.removeAtIndex = function (index) {
+    var last = this.arr.length - 1;
+    this.arr[index] = this.arr[last];
+    this.arr.pop();
+};
+FastSet.prototype.getIndex = function (val) {
+    return this.arr.indexOf(val);
+};
+FastSet.prototype.getAtIndex = function (index) {
+    return this.arr[index];
 };
 FastSet.prototype.clear = function () {
-    this.arr.length = 0;
+    this.arr = [];
 };
-// Git Array zum iterieren zurück
 FastSet.prototype.getArray = function () {
     return this.arr;
 };
 FastSet.prototype.isEmpty = function () {
+    return this.arr.length === 0;
+};
+
+// Set für schnelles einfügen / löschen
+// Verhindet Duplikate, Sortierung wird nicht beachtet
+var FastUniqueSet = function () {
+    this.arr = [];
+};
+FastUniqueSet.prototype.add = function (val) {
+    if (this.arr.indexOf(val) === -1) {
+        this.arr.push(val);
+    }
+};
+FastUniqueSet.prototype.remove = function (val) {
+    var i = this.arr.indexOf(val);
+    if (i === -1) return;
+    var last = this.arr.length - 1;
+    this.arr[i] = this.arr[last];
+    this.arr.pop();
+
+};
+FastUniqueSet.prototype.clear = function () {
+    this.arr = [];
+};
+FastUniqueSet.prototype.getArray = function () {
+    return this.arr;
+};
+FastUniqueSet.prototype.isEmpty = function () {
     return this.arr.length === 0;
 };
 
@@ -142,7 +174,7 @@ var CollisionGrid = function (cellsX, cellsY) {
         this.towerCollisions[i] = [];
         for (j = 0; j < cellsY; j++) {
             this.towerGrid[i][j] = null;
-            this.towerCollisions[i][j] = new FastSet();
+            this.towerCollisions[i][j] = new FastUniqueSet();
         }
     }
 };

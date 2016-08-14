@@ -9,7 +9,7 @@
 
 Game.prototype.initLoops = function () {
     this.accumulator = 0; // Sammelt die Frame-Zeiten
-    this.passed = 0; // Summe aller Frame-Zeiten
+    this.passedTime = 0; // Summe aller Frame-Zeiten
     this.slowFactor = 1; // Slow-motion Faktor
     this.lastTime = 0;
 
@@ -36,7 +36,7 @@ Game.prototype.gameloop = function (newTime) {
     }
     this.lastTime = newTime;
     this.accumulator += frameTime;
-    this.passed += frameTime;
+    this.passedTime += frameTime;
 
     while (this.accumulator >= slowStep) {
         this.simulate(game.step);
@@ -44,7 +44,7 @@ Game.prototype.gameloop = function (newTime) {
         this.accumulator -= slowStep;
     }
 
-    this.updateAnimation(this.passed / this.slowFactor, this.accumulator / this.slowFactor);
+    this.updateAnimation(this.passedTime / this.slowFactor, this.accumulator / this.slowFactor);
 
     this.renderer.render(this.stage);
     this.frameId = requestAnimationFrame(this.gameloop);
@@ -93,17 +93,10 @@ Game.prototype.simulate = function (dt) {
         mob.age += dt;
         mob.simulateToAge(mob.age);
 
-        if (utils.isFinish(mob.cx, mob.cy)) {
-            game.hit(1);
-            mob.kill();
-            continue;
-        }
-
         collArray = this.collGrid.getCollisionsAt(mob.cx, mob.cy).getArray();
 
         for (j = 0; j < collArray.length; j++) {
             tower = collArray[j];
-
             dist = utils.dist(tower.x - mob.x, tower.y - mob.y);
             tower.collide(mob, dist);
         }
@@ -113,78 +106,59 @@ Game.prototype.simulate = function (dt) {
         tower = towers[i];
         tower.afterCollide();
     }
-    // Killed Mobs entfernen
-    // Rückwärts, um keine Elemente zu überspringen
-    for (i = mobs.length - 1; i >= 0; i--) {
-        mob = mobs[i];
-        if (mob.isKilled()) {
-            game.removeMob(mob);
-        }
-    }
+    this.cleanMobs();
 };
 
 // Grafik update
-Game.prototype.updateAnimation = function (time, accumulator) {
+Game.prototype.updateAnimation = function (passedTime, accumulator) {
     var mobs = this.mobs.getArray();
-    var i, mob;
+    var towers = this.towers.getArray();
+    var i, mob, tower;
     for (i = 0; i < mobs.length; i++) {
         mob = mobs[i];
-        mob.simulateToAge(mob.age + accumulator);
-        mob.update();
+        mob.update(passedTime, accumulator);
 
     }
-    var towers = this.towers.getArray();
-    var tower;
     for (i = 0; i < towers.length; i++) {
         tower = towers[i];
-        tower.update(time);
+        tower.update(passedTime, accumulator);
     }
-
 };
 
 
 
-var colorMatrix = new PIXI.filters.ColorMatrixFilter();
-//colorMatrix.brightness(1.5);
-colorMatrix.blackAndWhite();
-
-var blur = new PIXI.filters.BlurFilter();
-blur.blur = 3;
-
-
-game.lose = function () {
-    if (game.isLost) return;
-    game.isLost = true;
-    slowFactor = 2;
-    game.stage.filters = [colorMatrix, blur];
-    ui.loseGame();
-};
-
-game.win = function () {
-    if (game.isLost) return;
-    ui.winGame();
-};
-
+//var colorMatrix = new PIXI.filters.ColorMatrixFilter();
+////colorMatrix.brightness(1.5);
+//colorMatrix.blackAndWhite();
+//
+//var blur = new PIXI.filters.BlurFilter();
+//blur.blur = 3;
+//
+//
+//game.lose = function () {
+//    if (game.isLost) return;
+//    game.isLost = true;
+//    slowFactor = 2;
+//    game.stage.filters = [colorMatrix, blur];
+//    ui.loseGame();
+//};
+//
+//game.win = function () {
+//    if (game.isLost) return;
+//    ui.winGame();
+//};
 
 // ==== Game Life ====
-Game.prototype.hit = function (power) {
-    this.life -= power;
-    if (game.life <= 0) {
-        game.life = 0;
-        game.lose();
+
+Game.prototype.hitHandler = function () {
+    this.life -= 1;
+    if (this.life <= 0) {
+        this.life = 0;
+        console.log("lose");
+//        game.lose();
     }
-    game.updateLife();
+    ui.updateLife();
     if (ui.canVibrate) navigator.vibrate(40);
-};
-
-game.heal = function (power) {
-    game.life += power;
-    if (game.life > 100) game.life = 100;
-    game.updateLife();
-};
-
-game.updateLife = function () {
-    gamelifeEl.textContent = game.life;
 };
 
 // ==== Game Cash ====
@@ -203,10 +177,10 @@ Game.prototype.hasCash = function (price) {
 };
 
 // ==== Game Wave ====
-game.updateRound = function () {
-    if (game.currentWaveID === -1) {
-        gameRoundEl.textContent = "";
-    } else {
-        gameRoundEl.textContent = game.currentWaveID + "/" + (game.waves.length - 1);
-    }
-};
+//game.updateRound = function () {
+//    if (game.currentWaveID === -1) {
+//        gameRoundEl.textContent = "";
+//    } else {
+//        gameRoundEl.textContent = game.currentWaveID + "/" + (game.waves.length - 1);
+//    }
+//};
