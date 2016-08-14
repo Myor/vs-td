@@ -34,7 +34,7 @@ waves[6] = [
 ];
 
 waves[7] = [
-    {num: 100, type: 8, delay: 20},
+    {num: 100, type: 8, delay: 20}
 ];
 
 waves[8] = [

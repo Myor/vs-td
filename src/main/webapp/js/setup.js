@@ -16,6 +16,7 @@ function loadResources() {
 
 // Objekt für Statische Daten / Funktionen
 var game = {};
+game.tex = {};
 game.resX = 384;
 game.resY = 544;
 game.cellSize = 32;
@@ -47,7 +48,6 @@ delete PIXI.WebGLRenderer.__plugins.accessibility;
 
 
 game.setup = function () {
-    console.log("setup");
 
     game.setupTextures();
     game.setupMapTextures();
@@ -57,7 +57,7 @@ game.setup = function () {
     game.local.initLocal();
     game.local.initLoops();
     game.local.startGameLoop();
-    
+
     game.remote = new Game(document.getElementById("remoteGameField"));
     game.remote.initGame();
     game.remote.initRemote();
@@ -166,13 +166,13 @@ Game.prototype.initGame = function () {
 };
 
 Game.prototype.initLocal = function () {
-    
+
     this.on("spawnMob", function (id) {
         this.emit("addMob", id);
     }, this);
-    
+
     this.on("killMob", this.killMob, this);
-    
+
     this.on("hit", this.hitHandler, this);
 
     // Events zu Peer senden
@@ -233,8 +233,6 @@ Game.prototype.initMap = function () {
     var map = game.map;
     var mapCon = this.mapCon;
 
-    this.renderer.backgroundColor = map.bgColor;
-
     // Background
     var layout = map.groundLayout;
     for (var y = 0; y < game.cellsY; y++) {
@@ -250,11 +248,6 @@ Game.prototype.initMap = function () {
     // Map ändert sich nicht, kann gecached werden
     mapCon.cacheAsBitmap = true;
 
-    // Standard Tower
-//    var walls = map.walls;
-//    for (var i = 0; i < walls.length; i++) {
-//        game.addTowerAt(towerTypes[0], walls[i][0], walls[i][1]);
-//    }
     // Blockierte Zellen
     var locks = map.locks;
     for (var y = 0; y < game.cellsY; y++) {
@@ -266,7 +259,7 @@ Game.prototype.initMap = function () {
 };
 
 game.setupTextures = function () {
-    game.tex = {};
+    var texFromCache = game.texFromCache;
 
     game.tex.mobTexEmpty = texFromCache("mobs", 0, 0, 32, 32);
     game.tex.mobBarTex = texFromCache("mobBar", 0, 0, 32, 3);
@@ -359,7 +352,7 @@ game.setupTextures = function () {
 };
 
 // Textur aus loader Cache lesen, mit frame
-function texFromCache(img, x, y, w, h) {
+game.texFromCache = function (img, x, y, w, h) {
     if (x !== undefined) {
         return new PIXI.Texture(
                 PIXI.loader.resources[img].texture.baseTexture,
@@ -367,6 +360,4 @@ function texFromCache(img, x, y, w, h) {
     } else {
         return new PIXI.Texture(PIXI.loader.resources[img].texture.baseTexture);
     }
-}
-;
-game.texFromCache = texFromCache;
+};
