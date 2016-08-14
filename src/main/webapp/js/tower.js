@@ -149,8 +149,8 @@ var Tower = function (gameRef, type, cx, cy) {
     this.spr.y = this.y + game.cellCenter;
 
     this.game.towersCon.addChild(this.spr);
-    type.init.call(this);
-    Object.assign(this, type.extend);
+    Object.assign(this, type.extend);;
+    this.init();
 };
 
 Tower.prototype.destroy = function () {
@@ -171,6 +171,7 @@ Tower.prototype.getPower = function () {
     return this.type.power * this.powerMulti;
 };
 // Default noops
+Tower.prototype.init = function() {};
 Tower.prototype.update = function () {};
 Tower.prototype.beforeCollide = function () {};
 Tower.prototype.collide = function () {};
