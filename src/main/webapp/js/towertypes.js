@@ -332,14 +332,14 @@ towerTypes[7] = {
         this.shotSpr.anchor.set(0.5);
         this.shotSpr.x = this.x + game.cellCenter;
         this.shotSpr.y = this.y + game.cellCenter;
-        this.shotSpr.scale.set(0.1);
+        this.shotSpr.scale.set(0);
 
-        this.game.shockCon.addChild(this.shotSpr);
+        this.game.shotCon.addChild(this.shotSpr);
     },
     extend: {
         destroy: function () {
             Tower.prototype.destroy.call(this);
-            this.game.shockCon.removeChild(this.shotSpr);
+            this.game.shotCon.removeChild(this.shotSpr);
             this.shotSpr.destroy();
         },
         update: function () {
@@ -396,19 +396,19 @@ towerTypes[8] = {
         this.shotSpr.y = this.y + game.cellCenter;
         this.shotSpr.scale.set(0.1);
 
-        this.game.shockCon.addChild(this.shotSpr);
+        this.game.shotCon.addChild(this.shotSpr);
     },
     extend: {
         destroy: function () {
             Tower.prototype.destroy.call(this);
-            this.game.shockCon.removeChild(this.shotSpr);
+            this.game.shotCon.removeChild(this.shotSpr);
             this.shotSpr.destroy();
         },
         update: function () {
             if (this.shooting) {
                 this.shotSpr.scale.x += 0.05;
                 this.shotSpr.scale.y += 0.05;
-                if (this.shotSpr.scale.x > 1) {
+                if (this.shotSpr.scale.x > 2) {
                     this.shotSpr.scale.set(0);
                     this.shooting = false;
                     this.spr.texture = this.type.tex;

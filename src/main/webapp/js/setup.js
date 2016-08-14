@@ -11,7 +11,6 @@ function loadResources() {
             .add("pathMark", "assets/pathMarker.png")
             .add("map1ground", "assets/map1ground32.png")
             .add("map2ground", "assets/map2ground32.png")
-            .add("shockwave", "assets/shockwave.png")
             .load(game.setup);
 }
 
@@ -117,7 +116,6 @@ Game.prototype.initGame = function () {
     this.pathCon = new PIXI.Container();
 
     this.shotCon = new PIXI.ParticleContainer(1000, particleConOptions, 1000);
-    this.shockCon = new PIXI.ParticleContainer(100, particleConOptions, 100);
     this.towersCon = new PIXI.ParticleContainer(200, particleConOptions, 200);
 
     this.mobsCon = new PIXI.ParticleContainer(50000, particleConOptions, 10000);
@@ -143,7 +141,6 @@ Game.prototype.initGame = function () {
     stage.addChild(this.mapCon);
     stage.addChild(this.selectCircleGr);
     stage.addChild(this.shotCon);
-    stage.addChild(this.shockCon);
     stage.addChild(this.towersCon);
     stage.addChild(this.pathCon);
     stage.addChild(this.selectGr);
@@ -214,7 +211,6 @@ Game.prototype.destroyGame = function () {
     this.mapCon = null;
     this.pathCon = null;
     this.shotCon = null;
-    this.shockCon = null;
     this.towersCon = null;
     this.towers = null;
 
@@ -318,11 +314,11 @@ game.setupTextures = function () {
     // AoE
     towerTypes[7].tex = texFromCache("towers", 35, 0, 32, 32);
     towerTypes[7].tex2 = texFromCache("towers", 69, 0, 32, 32);
-    towerTypes[7].shotTex = texFromCache("shockwave");
+    towerTypes[7].shotTex = texFromCache("shots", 0, 224, 96, 96);
     // AoE Level 2
     towerTypes[8].tex = towerTypes[7].tex;
     towerTypes[8].tex2 = towerTypes[7].tex2;
-    towerTypes[8].shotTex = texFromCache("shockwave");
+    towerTypes[8].shotTex = towerTypes[7].shotTex;
 
     // Ufo
     towerTypes[9].tex = texFromCache("towers", 342, 0, 32, 32);

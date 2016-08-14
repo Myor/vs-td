@@ -92,7 +92,7 @@ mobTypes[10] = {
 mobTypes[11] = {
     name: "Heli3",
     cash: 36,
-    life: 150,
+    life: 2000,
     speed: 900,
     tex: null
 };
