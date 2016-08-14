@@ -42,11 +42,11 @@ Game.prototype.cleanMobs = function () {
 };
 // Mob als tot kennzeichnen
 Game.prototype.killMob = function (mob, by) {
-    mob.type = null;
     if (by != null) {
         by.killCount++;
         this.addCash(mob.type.cash);
     }
+    mob.type = null;
 };
 
 // Mob zurück in den Pool schieben und aus Update loop löschen
