@@ -256,13 +256,13 @@ Game.prototype.initMap = function () {
 //        game.addTowerAt(towerTypes[0], walls[i][0], walls[i][1]);
 //    }
     // Blockierte Zellen
-//    var locks = map.locks;
-//    for (var y = 0; y < game.cellsY; y++) {
-//        for (var x = 0; x < game.cellsX; x++) {
-//            var index = y * game.cellsX + x;
-//            if (locks[index] === 1) game.lockCell(x, y);
-//        }
-//    }
+    var locks = map.locks;
+    for (var y = 0; y < game.cellsY; y++) {
+        for (var x = 0; x < game.cellsX; x++) {
+            var index = y * game.cellsX + x;
+            if (locks[index] === 1) this.lockCell(x, y);
+        }
+    }
 };
 
 game.setupTextures = function () {

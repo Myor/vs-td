@@ -39,9 +39,7 @@ Game.prototype.clearPath = function () {
     cont.removeChildren();
 };
 // Zelle für Pfad und Tower sperren
-/*
-game.lockCell = function (cx, cy) {
-    game.collGrid.lockAt(cx, cy);
-    game.PFgrid.setWalkableAt(cx, cy, false);
+Game.prototype.lockCell = function (cx, cy) {
+    this.collGrid.lockAt(cx, cy);
+    this.PFgrid.setWalkableAt(cx, cy, false);
 };
-*/
