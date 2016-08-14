@@ -153,13 +153,13 @@ Game.prototype.initGame = function () {
   this.path = this.findPath();
   this.drawPath();
 
-  this.isPaused = false;
-  this.isLost = false;
+//  this.isPaused = false;
+//  this.isLost = false;
 //    this.updateRound();
 //    ui.reset();
 
   this.on("addTower", this.addTowerAt, this);
-  this.on("removeTower", this.removeTowerAt, this);
+  this.on("removeTower", this.removeTower, this);
 
   this.on("addMob", this.addMob, this);
   this.on("removeMob", this.removeMob, this);
@@ -183,7 +183,7 @@ Game.prototype.initRemote = function () {
   // Events von Peer empfangen und lokal emit
   // Dieser Kram muss übers netzwerk laufen
   game.local.on("addTower", game.remote.addTowerAt, this);
-  game.local.on("removeTower", game.remote.removeTowerAt, this);
+  game.local.on("removeTower", game.remote.removeTower, this);
 
   game.local.on("addMob", game.remote.addMob, this);
   game.local.on("removeMob", game.remote.removeMob, this);

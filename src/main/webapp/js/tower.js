@@ -64,11 +64,11 @@ Game.prototype.getTowerAt = function (cx, cy) {
 Game.prototype.sellTower = function (tower) {
   this.addCash(tower.type.sellPrice);
 
-  this.emit("removeTower", tower.cx, tower.cy);
+  this.emit("removeTower", this.towers.getIndex(tower));
 };
 
-Game.prototype.removeTowerAt = function (cx, cy) {
-  var tower = this.collGrid.getTowerAt(cx, cy);
+Game.prototype.removeTower = function (index) {
+  var tower = this.towers.getAtIndex(index);
 
   // Pfad freigeben
   if (tower.type.isBlocking) {
@@ -94,7 +94,7 @@ Game.prototype.upgradeTower = function (tower) {
   if (!this.hasCash(nextType.price)) return;
   this.removeCash(nextType.price);
 
-  this.emit("removeTower", tower.cx, tower.cy);
+  this.emit("removeTower", this.towers.getIndex(tower));
   this.emit("addTower", tower.type.next, tower.cx, tower.cy);
 };
 
