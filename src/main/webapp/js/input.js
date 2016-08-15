@@ -15,7 +15,7 @@ var remoteLifeBar = document.querySelector("#remoteStats .gameLifeBar");
 // Menu
 var cancelPlaceBtn = id("cancelPlace");
 //var pauseBtn = id("pauseGame");
-var halpBtn = id("halpGame");
+var helpBtn = id("helpGame");
 var exitBtn = id("exitGame");
 
 // Towers
@@ -39,6 +39,11 @@ var tSellPrice = towerStats.querySelector(".tSellPrice");
 
 // Mobs
 var mobList = id("mobs");
+
+var helpDialog = id("helpDialog");
+var helpCloseBtn = id("closeHelp");
+
+dialogPolyfill.registerDialog(helpDialog);
 
 var ui = {};
 ui.canVibrate = window.navigator.vibrate !== undefined;
@@ -123,6 +128,13 @@ var fillInfoSelected = function (tower) {
 
 exitBtn.addEventListener("click", function () {
   game.exit();
+});
+
+helpBtn.addEventListener("click", function () {
+  helpDialog.show();
+});
+helpCloseBtn.addEventListener("click", function () {
+  helpDialog.close();
 });
 
 function visibleHandler() {

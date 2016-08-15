@@ -11,8 +11,8 @@
 
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
-        <link rel="stylesheet" href="css/style.css">
         <link rel="stylesheet" href="css/vendor/dialog-polyfill.css"/>
+        <link rel="stylesheet" href="css/style.css">
 
         <script src="js/vendor/pixi.js"></script>
         <script src="js/vendor/pathfinding-browser.js"></script>
@@ -107,6 +107,25 @@
             </div>
 
         </div>
+
+        <dialog class="fixed" id="helpDialog">
+            <p>
+                Baue Türme auf dein Spielfeld, um es zu verteidigen.<br>
+                Manche Türme können zusätzlich Verbessert werden, um sträker zu verteidigen.<br>
+                Sende Angreifer los, um die Verteidigung deines Gegners zu durchdringen.<br>
+                Jeder besiegte Angreifer gibt etwas Geld als Belohnung.
+                Kommt ein Angreifer bis in die Basis, verlierst du Leben!
+            </p>
+            <p>
+                Der Spieler, welcher als erster keine verbleibenden Leben mehr hat, verliert das Match!
+            </p>
+            <p>
+                Tipp: Baue mit den Türmen ein Labyrinth, damit die feindlichen Angreifer lange unterwegs sind.<br>
+                Tipp: Verkaufe alte Türme, um Geld für stärkere zurück zu bekommen.
+            </p>
+
+            <button id="closeHelp">Schließen</button>
+        </dialog>
 
 
         <script src="js/utils.js"></script>
