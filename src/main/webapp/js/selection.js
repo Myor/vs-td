@@ -1,11 +1,11 @@
 "use strict";
 
 /* ==== Tower Radius Anzeige ==== */
-Game.prototype.drawSelectCircle = function (type) {
+Game.prototype.drawSelectCircle = function (radius) {
   this.selectCircleGr.clear();
-  if ("radius" in type) {
+  if (radius != undefined) {
     this.selectCircleGr.beginFill(0x000000, 0.3);
-    this.selectCircleGr.drawCircle(0, 0, type.radius * game.cellSize);
+    this.selectCircleGr.drawCircle(0, 0, radius * game.cellSize);
   }
 };
 Game.prototype.showSelection = function () {
@@ -25,15 +25,13 @@ Game.prototype.setSelectedTower = function (tower) {
   if (tower === null) {
     // Kreis ausblenden
     this.hideSelection();
-
-    ui.hideSelectedInfo();
+    this.emit("local:SelectTower", tower);
   } else if (this.selectedTower !== tower) {
-    this.drawSelectCircle(tower.type);
+    this.drawSelectCircle(tower.type.radius);
     this.moveSelectionTo(tower.cx, tower.cy);
     // Kreis anzeigen
     this.showSelection();
-
-    ui.showSelectedInfo(tower);
+    this.emit("local:SelectTower", tower);
   }
   this.selectedTower = tower;
 };

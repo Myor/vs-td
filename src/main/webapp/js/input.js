@@ -120,11 +120,12 @@ ui.updateRemoteLife = function () {
 // ===== Menüs =====
 
 ui.showSelectedInfo = function (tower) {
-  fillInfoSelected(tower);
-//    towerSelectedInfo.classList.remove("hideRight");
-};
-ui.hideSelectedInfo = function () {
-//    towerSelectedInfo.classList.add("hideRight");
+  if (tower === null) {
+    // hide
+  } else {
+    // show
+    fillInfoSelected(tower);
+  }
 };
 
 ui.pauseGame = function () {
@@ -216,24 +217,6 @@ var fillInfoSelected = function (tower) {
 
 // ===== Button Event Handler =====
 
-//var fastHandler = function () {
-//  if (slowFactor === 1) {
-//    ui.doubleSpeed();
-//  } else {
-//    ui.normalSpeed();
-//  }
-//};
-//
-//ui.doubleSpeed = function () {
-//  fastForwardButton.classList.add("active");
-//  slowFactor = 0.5;
-//};
-//
-//ui.normalSpeed = function () {
-//  fastForwardButton.classList.remove("active");
-//  slowFactor = 1;
-//};
-
 function pauseHandler() {
   if (game.isPaused === false) {
     ui.pauseGame();
@@ -297,7 +280,7 @@ function startPlace() {
   addPlaceListeners();
   game.local.setSelectedTower(null);
   selectBlocked = true;
-  game.local.drawSelectCircle(towerTypes[placeType]);
+  game.local.drawSelectCircle(towerTypes[placeType].radius);
 }
 
 function endPlace() {
@@ -378,7 +361,7 @@ function sellHandler() {
 //  tower.aimFunc = newAimFunc;
 //  updateAimBtns(newAimFunc.id);
 //};
- 
+
 function upgradeHandler() {
   var tower = game.local.getSelectedTower();
   if (tower === null) return;
