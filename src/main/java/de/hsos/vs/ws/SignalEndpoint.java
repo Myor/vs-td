@@ -1,7 +1,8 @@
 package de.hsos.vs.ws;
 
+import de.hsos.vs.td.Lobby;
+import static de.hsos.vs.td.LobbyList.lobbys;
 import java.io.IOException;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.websocket.CloseReason;
@@ -19,43 +20,44 @@ public class SignalEndpoint {
 
     static final Logger logger = Logger.getLogger(SignalEndpoint.class.getName());
 
-    static ConcurrentHashMap<String, Lobby> lobbys = new ConcurrentHashMap<>();
-
     @OnOpen
-    public void onOpen(Session session, @PathParam("lobby") String lobby) throws IOException {
-        logger.log(Level.INFO, "onOpen lobby {0}", lobby);
+    public void onOpen(Session session, @PathParam("lobby") String id) throws IOException {
+        logger.log(Level.INFO, "onOpen lobby {0}", id);
 
-        Lobby l = lobbys.get(lobby);
-        if (l == null) {
-            // Lobby erstellen
-            lobbys.put(lobby, new Lobby(session));
-        } else if (l.canJoin()) {
-            // Lobby beitreten
-            l.join(session);
-        } else {
-            // Lobby voll
-            session.close(new CloseReason(CloseCodes.VIOLATED_POLICY, null));
+        synchronized (lobbys) {
+            Lobby lobby = lobbys.get(id);
+            if (lobby == null) {
+                // Lobby erstellen
+                lobbys.put(id, new Lobby(session));
+            } else if (lobby.canJoin()) {
+                // Lobby beitreten
+                lobby.join(session);
+                lobby.signal(session, lobby.buildJoinRequest().toString());
+            } else {
+                // Lobby voll
+                session.close(new CloseReason(CloseCodes.VIOLATED_POLICY, null));
+            }
         }
-
     }
 
     @OnMessage
-    public void onMessage(String text, Session session, @PathParam("lobby") String lobby) {
-        logger.log(Level.INFO, "onMessage lobby {0}", lobby);
+    public void onMessage(String text, Session session, @PathParam("lobby") String id) {
+        logger.log(Level.INFO, "onMessage lobby {0}", id);
         // Message zum Peer senden
-        lobbys.get(lobby).signal(session, text);
+        lobbys.get(id).signal(session, text);
 
     }
 
     @OnClose
-    public void onClose(Session session, @PathParam("lobby") String lobby) throws IOException {
-        logger.log(Level.INFO, "onClose lobby {0}", lobby);
+    public void onClose(Session session, @PathParam("lobby") String id) throws IOException {
+        logger.log(Level.INFO, "onClose lobby {0}", id);
 
-        Lobby l = lobbys.get(lobby);
-        if (l != null && l.quit(session)) {
-            lobbys.remove(lobby);
+        synchronized (lobbys) {
+            Lobby lobby = lobbys.get(id);
+            if (lobby != null && lobby.quit(session)) {
+                lobbys.remove(id);
+            }
         }
-
     }
 
     @OnError

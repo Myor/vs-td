@@ -1,16 +1,16 @@
-package de.hsos.vs.ws;
+package de.hsos.vs.td;
 
 import java.io.IOException;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.websocket.Session;
 
-class Lobby {
+public class Lobby {
 
     private Session p1;
     private Session p2;
 
-    Lobby(Session session) {
+    public Lobby(Session session) {
         p1 = session;
     }
 
@@ -20,14 +20,6 @@ class Lobby {
 
     public void join(Session session) {
         p2 = session;
-        p1.getAsyncRemote().sendText(buildJoinRequest());
-    }
-
-    private String buildJoinRequest() {
-        JsonObject obj = Json.createObjectBuilder()
-                .add("action", "join-request")
-                .add("profile", "name etc.").build();
-        return obj.toString();
     }
 
     public void signal(Session sender, String text) {
@@ -52,6 +44,22 @@ class Lobby {
         }
         return true;
 
+    }
+
+    public JsonObject buildJoinRequest() {
+        return Json.createObjectBuilder()
+                .add("action", "join-request")
+                .add("username", "mia")
+                .build();
+    }
+
+    public JsonObject buildLobbyDescription(String id) {
+        return Json.createObjectBuilder()
+                .add("id", id)
+                .add("title", "Lobby 1234")
+                .add("username", "max")
+                .add("map", 0)
+                .build();
     }
 
 }
