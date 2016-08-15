@@ -25,6 +25,7 @@ game.cellsX = 12; // = resX / cellSize
 game.cellsY = 17; // = resY / cellSize
 // Rechteck für einfach hit-tests
 game.fieldRect = new PIXI.Rectangle(0, 0, game.cellsX, game.cellsY);
+// Aktuelle Karte
 game.map = null;
 // Simulationsschritt in ms
 game.step = 50;
@@ -69,7 +70,15 @@ game.setup = function () {
 
   ui.updateLocalLife();
   ui.updateRemoteLife();
-  ui.setupInput();
+  ui.setupLocalInput();
+};
+
+game.exit = function () {
+  game.local.destroy();
+  game.local = null;
+  game.remote.destroy();
+  game.return = null;
+  game.map = null;
 };
 
 // Spielfeld Konstruktor
@@ -176,15 +185,12 @@ Game.prototype.initRemote = function () {
 
   game.local.on("addMob", this.addMob, this);
   game.local.on("removeMob", this.removeMob, this);
-  
+
   game.local.on("gameHit", this.remoteHit, this);
 };
 
-Game.prototype.destroyGame = function () {
+Game.prototype.destroy = function () {
   this.stopGameLoop();
-  // Aktive Aktionen abbrechen
-//    ui.endPlace();
-//    ui.hideMenu();
   this.setSelectedTower(null);
 
   // Stage mit allen Inhalten löschen
@@ -195,29 +201,6 @@ Game.prototype.destroyGame = function () {
   this.renderer.destroy(true);
   this.renderer = null;
   this.canvasEl = null;
-  // Alle Referenzen auf Objekte löschen
-  this.collGrid = null;
-  this.buffColGrid = null;
-
-  this.mapCon = null;
-  this.pathCon = null;
-  this.shotCon = null;
-  this.towersCon = null;
-  this.towers = null;
-
-  this.selectCircleGr = null;
-  this.selectGr = null;
-
-  this.mobsCon = null;
-  this.mobsBarCon = null;
-  this.mobs = null;
-  this.mobQueue = null;
-  this.groupQueue = null;
-  this.mobPool = null;
-
-  this.PFgrid = null;
-  this.path = null;
-
 };
 
 Game.prototype.initMap = function () {

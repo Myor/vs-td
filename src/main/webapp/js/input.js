@@ -11,6 +11,7 @@ var localCashEl = id("localCash");
 // Menu
 var cancelPlaceBtn = id("cancelPlace");
 var pauseBtn = id("pauseGame");
+var exitBtn = id("exitGame");
 
 // Towers
 var towerList = id("towers");
@@ -23,13 +24,7 @@ var towerList = id("towers");
 //var towerMenu = id("towerMenu");
 //var towerInfo = id("towerInfo");
 var towerStats = id("towerStats");
-//// Buttons Game
-//var nextWaveButton = id("nextWave");
-//var fastForwardButton = id("fastForward");
-//var showTowersBtn = id("showTowers");
-//
 
-//var exitBtn = id("exitBtn");
 //// Win / Lose
 //var gameOverlayDiv = id("gameOverlay");
 //var winMsgDiv = id("winMsg");
@@ -68,6 +63,7 @@ var remoteLifeEl = id("remoteLife");
 // Menu
 cancelPlaceBtn.addEventListener("click", towerCancelHandler);
 pauseBtn.addEventListener("click", pauseHandler);
+exitBtn.addEventListener("click", exitHandler);
 // Tower spawn
 towerList.addEventListener("click", towerListHandler);
 // Tower verkauf
@@ -80,16 +76,6 @@ tNextBtn.addEventListener("click", upgradeHandler);
 // Mob spawn
 mobList.addEventListener("click", mobListHandler);
 
-//// Nächste Wave enquen
-//nextWaveButton.addEventListener("click", waveHandler);
-//// Spiel Pausieren
-//pauseButton.addEventListener("click", pauseHandler);
-//// Spiel bescheunigen
-//fastForwardButton.addEventListener("click", fastHandler);
-//// TowerMenu
-//showTowersBtn.addEventListener("click", ui.showMenu);
-//// Exit to Menu
-//exitBtn.addEventListener("click", ui.exitToMenu);
 //exitLoseBtn.addEventListener("click", ui.exitToMenu);
 //exitWinBtn.addEventListener("click", ui.exitToMenu);
 
@@ -97,7 +83,7 @@ var ui = {};
 ui.canVibrate = window.navigator.vibrate !== undefined;
 
 // ===== Events dynamisch erstellte Elemente =====
-ui.setupInput = function () {
+ui.setupLocalInput = function () {
   // Kein Kontextmenü
   game.local.canvasEl.addEventListener("contextmenu", function (e) {
     e.preventDefault();
@@ -223,6 +209,10 @@ function pauseHandler() {
   } else {
     ui.resumeGame();
   }
+}
+
+function exitHandler() {
+  game.exit();
 }
 
 // ====== Klick auf Spielfend ======
