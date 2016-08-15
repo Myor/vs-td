@@ -168,8 +168,8 @@ Game.prototype.initLocal = function () {
     this.emit("addMob", id);
   }, this);
 
-  this.on("local:KillMob", this.killMob, this);
-  this.on("local:SelectTower", ui.showSelectedInfo);
+  this.on("killMob", this.killMob, this);
+  this.on("selectTower", ui.showSelectedInfo);
 
   this.on("gameHit", this.localHit, this);
 

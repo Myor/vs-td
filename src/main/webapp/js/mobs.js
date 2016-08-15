@@ -37,7 +37,7 @@ Game.prototype.cleanMobs = function () {
     // Mob töten, wenn im Ziel
     if (utils.isFinish(mob.cx, mob.cy)) {
       this.emit("gameHit");
-      this.emit("local:KillMob", mob, null);
+      this.emit("killMob", mob, null);
     }
     if (mob.isKilled()) {
       this.emit("removeMob", i);
