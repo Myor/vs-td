@@ -50,6 +50,11 @@ delete PIXI.WebGLRenderer.__plugins.accessibility;
 
 game.setup = function () {
 
+  game.start();
+
+};
+
+game.start = function () {
   game.setupTextures();
   game.setupMapTextures();
   game.map = game.maps[0];
@@ -136,9 +141,6 @@ Game.prototype.initGame = function () {
   this.selectGr.beginFill(0xFFFFFF, 0.5);
   this.selectGr.drawRect(-game.cellCenter, -game.cellCenter, game.cellSize, game.cellSize);
 
-  this.selectedTower = null;
-  this.setSelectedTower(null);
-
   // Alle Layer hinzufügen
   stage.addChild(this.mapCon);
   stage.addChild(this.selectCircleGr);
@@ -173,6 +175,8 @@ Game.prototype.initLocal = function () {
 
   this.on("gameHit", this.localHit, this);
 
+  this.setSelectedTower(null);
+
   // Events zu Peer senden
   // this.on("addTower", ...);
 };
@@ -187,14 +191,14 @@ Game.prototype.initRemote = function () {
   game.local.on("removeMob", this.removeMob, this);
 
   game.local.on("gameHit", this.remoteHit, this);
+
+  this.setSelectedTower(null);
 };
 
 Game.prototype.destroy = function () {
   this.stopGameLoop();
   this.setSelectedTower(null);
-
   // Stage mit allen Inhalten löschen
-  // TODO Texturen nicht mit löschen / erneut verwenden
   this.stage.destroy(true);
   this.stage = null;
   // Renderer mit Canvas löschen
@@ -288,8 +292,8 @@ game.setupTextures = function () {
   towerTypes[8].shotTex = towerTypes[7].shotTex;
 
   // Ufo
-  towerTypes[9].tex = texFromCache("towers", 342, 0, 32, 32);
-  towerTypes[9].tex2 = texFromCache("towers", 377, 0, 32, 32);
+  towerTypes[9].tex = texFromCache("towers", 377, 0, 32, 32);
+//  towerTypes[9].tex2 = texFromCache("towers", 377, 0, 32, 32);
   towerTypes[9].shotTex = [
     texFromCache("shots", 0, 32, 128, 32),
     texFromCache("shots", 0, 64, 128, 32),
@@ -297,7 +301,7 @@ game.setupTextures = function () {
   ];
   // Ufo Level 2
   towerTypes[10].tex = towerTypes[9].tex;
-  towerTypes[10].tex2 = towerTypes[9].tex2;
+//  towerTypes[10].tex2 = towerTypes[9].tex2;
   towerTypes[10].shotTex = [
     texFromCache("shots", 0, 128, 128, 32),
     texFromCache("shots", 0, 160, 128, 32),

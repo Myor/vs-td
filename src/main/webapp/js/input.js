@@ -15,35 +15,16 @@ var exitBtn = id("exitGame");
 
 // Towers
 var towerList = id("towers");
-
-
-//// Alle statischen Elemente
-//var gameWrapper = id("gameWrapper");
-//// Game Menüs
-//var mainMenu = id("mainMenu");
-//var towerMenu = id("towerMenu");
-//var towerInfo = id("towerInfo");
 var towerStats = id("towerStats");
-
-//// Win / Lose
-//var gameOverlayDiv = id("gameOverlay");
-//var winMsgDiv = id("winMsg");
-//var loseMsgDiv = id("loseMsg");
-//var exitWinBtn = id("exitWin");
-//var exitLoseBtn = id("exitLose");
-//// Menü
-//var playButton = id("playGame");
-//var mapSelectDiv = id("mapSelect");
-//var map1Button = id("playMap1");
-//var map2Button = id("playMap2");
-//var inputGameMode1 = id("inputGameMode1");
 
 // Selected-infos
 var tName = towerStats.querySelector(".tName");
+var tDesc = towerStats.querySelector(".tDesc");
 var tKillCount = towerStats.querySelector(".tKillCount");
 var tPower = towerStats.querySelector(".tPower");
 var tFreq = towerStats.querySelector(".tFreq");
 var tRadius = towerStats.querySelector(".tRadius");
+var tUpgrade = towerStats.querySelector(".tUpgrade");
 var tCurrentLvl = towerStats.querySelector(".tCurrentLvl");
 var tNextBtn = towerStats.querySelector(".tNextBtn");
 var tNextLvl = towerStats.querySelector(".tNextLvl");
@@ -61,8 +42,8 @@ var remoteLifeEl = id("remoteLife");
 
 // ===== Events bei statischen Elementen =====
 // Menu
-cancelPlaceBtn.addEventListener("click", towerCancelHandler);
-pauseBtn.addEventListener("click", pauseHandler);
+//cancelPlaceBtn.addEventListener("click", towerCancelHandler);
+//pauseBtn.addEventListener("click", pauseHandler);
 exitBtn.addEventListener("click", exitHandler);
 // Tower spawn
 towerList.addEventListener("click", towerListHandler);
@@ -76,9 +57,6 @@ tNextBtn.addEventListener("click", upgradeHandler);
 // Mob spawn
 mobList.addEventListener("click", mobListHandler);
 
-//exitLoseBtn.addEventListener("click", ui.exitToMenu);
-//exitWinBtn.addEventListener("click", ui.exitToMenu);
-
 var ui = {};
 ui.canVibrate = window.navigator.vibrate !== undefined;
 
@@ -91,6 +69,8 @@ ui.setupLocalInput = function () {
   // Klick auf Spielfeld
   game.local.canvasEl.addEventListener("click", clickHandler);
   game.local.canvasEl.addEventListener("touchend", touchHandler);
+
+  document.addEventListener("visibilitychange", visibleHandler);
 };
 
 ui.updateCash = function () {
@@ -107,9 +87,9 @@ ui.updateRemoteLife = function () {
 
 ui.showSelectedInfo = function (tower) {
   if (tower === null) {
-    // hide
+    towerStats.classList.add("invisible");
   } else {
-    // show
+    towerStats.classList.remove("invisible");
     fillInfoSelected(tower);
   }
 };
@@ -125,58 +105,22 @@ ui.resumeGame = function () {
   pauseButton.classList.remove("paused");
 };
 
-
-//ui.loseGame = function () {
-//  gameOverlayDiv.classList.remove("hidden");
-//  loseMsgDiv.classList.remove("hidden");
-//};
-//ui.winGame = function () {
-//  gameOverlayDiv.classList.remove("hidden");
-//  winMsgDiv.classList.remove("hidden");
-//};
-//
-//ui.reset = function () {
-//  pauseButton.classList.remove("paused");
-//  ui.normalSpeed();
-//  gameOverlayDiv.classList.add("hidden");
-//  loseMsgDiv.classList.add("hidden");
-//  winMsgDiv.classList.add("hidden");
-//};
-
-var fillTowerInfo = function (id) {
-  var type = towerTypes[id];
-
-  var nameDesc = "<div class='infoName'>" + type.name + "</div>" + type.desc;
-
-  var table = "<table>";
-  if ('power' in type)
-    table += "<tr><td>Damage</td><td>" + type.power + "</td></tr>";
-  if ('freq' in type)
-    table += "<tr><td>Reload</td><td>" + type.freq + "</td></tr>";
-  if ('radius' in type)
-    table += "<tr><td>Radius</td><td>" + type.radius + "</td></tr>";
-
-  table += "<tr><td>Price</td><td>" + type.price + "</td></tr>";
-  table += "</table>";
-
-  towerInfo.innerHTML = nameDesc + table;
-};
-
 var fillInfoSelected = function (tower) {
   var type = tower.type;
 
   tName.textContent = type.name;
+  tDesc.textContent = type.desc;
   tKillCount.textContent = tower.killCount;
   tPower.textContent = "power" in type ? tower.getPower().toFixed(2) : "-";
   tFreq.textContent = "freq" in type ? tower.getFreq().toFixed(2) : "-";
   tRadius.textContent = "radius" in type ? type.radius : "-";
   // Upgrades
-  tCurrentLvl.textContent = type.level;
   var hasNext = type.next !== undefined;
+  tUpgrade.classList.toggle("noUpgrade", !hasNext);
+  tCurrentLvl.textContent = type.level;
   tNextLvl.textContent = hasNext ? towerTypes[type.next].level : "-";
   tNextPrice.textContent = hasNext ? towerTypes[type.next].price : "-";
   tNextBtn.disabled = hasNext ? false : true;
-
 
   // Aim Buttons ein / ausblenden
 //  if (tower.aimFunc === null) {
@@ -213,6 +157,10 @@ function pauseHandler() {
 
 function exitHandler() {
   game.exit();
+}
+
+function visibleHandler() {
+  console.log(document.hidden);
 }
 
 // ====== Klick auf Spielfend ======
@@ -266,7 +214,7 @@ function towerCancelHandler() {
 }
 
 function startPlace() {
-  cancelPlaceBtn.disabled = false;
+//  cancelPlaceBtn.disabled = false;
   addPlaceListeners();
   game.local.setSelectedTower(null);
   selectBlocked = true;
@@ -274,7 +222,7 @@ function startPlace() {
 }
 
 function endPlace() {
-  cancelPlaceBtn.disabled = true;
+//  cancelPlaceBtn.disabled = true;
   removePlaceListeners();
   game.local.hideSelection();
   selectBlocked = false;

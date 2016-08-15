@@ -30,9 +30,10 @@ Game.prototype.gameloop = function (newTime) {
   var slowStep = game.step * this.slowFactor;
 
   var frameTime = newTime - this.lastTime;
-  if (frameTime > 500) {
+  if (frameTime > 1000) {
     // Spikes abfangen
-    frameTime = 500;
+    console.log("clamp");
+    frameTime = 1000;
   }
   this.lastTime = newTime;
   this.accumulator += frameTime;

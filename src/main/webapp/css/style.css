@@ -5,22 +5,20 @@ html {
     -webkit-user-select: none;                  /* prevent copy paste, to allow, change 'none' to 'text' */
 }
 body {
-    font-family: Lucida Console;
-    font-size: 12px;
+    font-family: sans-serif;
+    font-size: 14px;
     margin: 0;
-}
-:focus {
-    outline: none;
+    background-color: #EFEFEF;
 }
 
 button {
     font-family: inherit;
     font-size: inherit;
     color: inherit;
-    border-radius: 4px;
-    border: 1px outset #CACACA;
+    border-radius: 0px;
+    border: 2px outset #CACACA;
     background-color: #CACACA;
-    padding: 4px 6px;
+    padding: 6px;
     cursor: pointer;
 }
 button:active {
@@ -30,293 +28,186 @@ button:active {
 .hidden {
     display: none !important;
 }
+.invisible {
+    visibility: hidden;
+}
 
-#content {
-    background-color: #efefef;    
-    height:100vh;
-    width:100%;
+/* ====== Spielfeld ====== */
+
+#gameWrapper {
     display: flex;
-    align-items: center;
     justify-content: center;
 }
 
-#mainMenu {
-    font-family: sans-serif;;
-    text-align:center;
+#gameWrapper h1 {
+    font-size: 19px;
+    font-weight: initial;
+    margin: 0px;
+    padding: 5px;
+    color: rgb(77, 77, 77);
+}
+
+#localGame,
+#remoteGame {
+    width: 384px;
+}
+
+#localGameField canvas,
+#remoteGameField canvas {
+    display: block;
+}
+
+#towerMenu,
+#mobMenu {
+    background-color: #aeaeae;
+    padding: 5px;
+}
+
+/* ===== Stats ===== */
+
+.gameStats {
     position: relative;
     overflow: hidden;
-    background-image: url("../assets/header.png");
-    background-repeat: no-repeat;
-    background-position: center top;
-    width: 360px;
-    max-width: 100%;
-    height: 100%;
-}
-
-#playGame{
-    font-size: 30px;
-    margin-top: 360px;
-}
-
-#mapSelect {
-    height: 200px;
-    width: 100%;
-    position: absolute;
-    bottom: 0;
-    background-color: #efefef;
-    transition: transform 0.3s;
-    transition-timing-function: ease-out;
-    /*box-shadow: 0 0 10px black;*/
-}
-
-#playMap1,
-#playMap2 {
-    padding: 10px;
-    margin: 10px;
-    font-size: 20px;
-    width: 40%;
-}
-
-.hideMapSelect {
-    transform: translateY(200px);
-}
-
-.radioGroup input {
-    display: none;
-}
-
-.radioGroup input:checked + label {
+    height: 30px;
     background-color: red;
 }
 
-.radioGroup label {
-    font-size: 20px;
-    display: block;
-    min-width: 100px;
-    padding: 10px;
-    margin: 10px;
-    background-color: #CACACA;
-}
-
-#gameWrapper {
-    margin-left: auto;
-    margin-right: auto;
-    box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    overflow: hidden;
-    position: relative;
-    width: 384px;
-    max-width: 100%;
-    margin: 0 auto;
-}
-
-#gameField{
-}
-
-#gameField canvas {
-    display: block;
-    max-width: 100%;
-}
-
-#gameLife,
-#gameCash,
-#gameRound {
-    pointer-events: none;
+.gameLife,
+.gameName {
     position: absolute;
-    font-size: 16px;
-    font-weight: bold;
     color: white;
-    line-height: 16px;
-}
-#gameLife,
-#gameCash {
-    margin-left: 3px;
-    padding-left: 17px;
-    background-image: url("../assets/icons16.png");
-    background-repeat: no-repeat;
-}
-#gameLife {
-    top: 10px;
-    background-position: 0px 0px;
-}
-#gameCash {
-    top: 10px;
-    right: 10px;
-    background-position: 0px -16px;
-}
-#gameRound {
-    top: 10px;
-    left: 50%;
-    width: 100px;
-    text-align: center;
-    margin-left: -50px;
-}
-
-
-#towerMenu,
-#towerInfo,
-#towerSelectedInfo {
-    position: absolute;
-    background-color: rgba(239, 239, 239, 0.9);
-    border: 1px solid #595959;
-}
-
-#gameOverlay {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-#winMsg,
-#loseMsg {
-    text-align: center;
-    background-color: rgba(0, 0, 0, 0.5);
-    border-radius: 10px;
-}
-
-#winMsg button,
-#loseMsg button {
-    padding: 10px;
-    margin: 10px;
-    font-size: 16px;
-}
-
-#winMsg .msg,
-#loseMsg .msg {
-    padding: 10px;
-    margin: 10px;
-    font-size: 20px;
     font-weight: bold;
+    font-size: 16px; 
+    line-height: 30px;
+    text-shadow: 0px 1px 2px black;
 }
 
-/* ===== Tower Menu ===== */
-#towerMenu {
-    width: 140px;
+.gameLife {
+    padding: 0 10px;
+}
+.gameName {
+    padding: 0 10px;
+    right: 0;
+}
+
+.gameLifeBar {
+    position: absolute;
     height: 100%;
-    border-left: 0;
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
-    box-shadow: 1px 0px 2px #595959;
-    box-sizing: border-box;
-
-    transition: transform 0.3s;
-    transition-timing-function: ease-out;
+    width: 100%;
+    background-color: #65e305;
 }
 
-.towerDiv {
-    margin: 10px;
-}
-.towerInfo {
-    font-family: Courier New;
+/* ===== Tower & Mobs ===== */
+
+.tower,
+.mob {
+    position: relative;
     width: 32px;
     height: 32px;
-    margin-left: 30px;
-}
-
-.tower {
-    width: 32px;
-    height: 32px;
+    color: transparent;
     background-color: transparent;
     padding: 0;
     border: 0;
-    text-indent: -100px;
+    margin: 5px;
+}
+
+.tower {
     background-image: url(../assets/towerSheet32.png);
 }
 
-.tower[data-type="0"] {
-    background-position: -409px 0px;
-}
-.tower[data-type="1"] {
-    background-position: -103px 0px;
-}
-.tower[data-type="3"] {
-    background-position: -1px 0px;
-}
-.tower[data-type="5"] {
-    background-position: -443px 0px;
-}
-.tower[data-type="7"] {
-    background-position: -35px 0px;
-}
-.tower[data-type="9"] {
-    background-position: -342px 0px;
-}
-.tower[data-type="11"] {
-    background-position: -270px 0px;
+.mob {
+    background-image: url(../assets/mobSheet32-up.png);
 }
 
-/* ===== Tower Info ===== */
-#towerInfo {
-    top: 0;
-    right: 0;
-    width: 120px;
-    padding: 10px;
-    border-right: 0;
-    border-top: 0;
-    border-bottom-left-radius: 10px;
-    box-shadow: -1px 1px 2px #595959;
-}
-
-#towerInfo .infoName {
-    font-size: 14px;
+.tower:before,
+.mob:before {
+    content: attr(data-price);
+    position: absolute;
+    color: white;
     font-weight: bold;
-    margin-bottom: 5px;
+    text-shadow: 0px 1px 2px black;
+    right: -4px;
+    bottom: -10px;
 }
 
-#towerInfo table {
-    border-collapse: collapse;
-    margin: 5px 0;
-}
-#towerInfo td {
-    padding-bottom: 4px;
-    padding-right: 4px;
+.tower:focus {
+    filter: grayscale(100%);
 }
 
-/* ===== Tower Selected Info ===== */
-#towerSelectedInfo {
-    right: 0;
-    width: 150px;
-    height: 100%;
-    padding: 10px;
-    border-right: 0;
+.tower[data-type="0"] {background-position: -409px 0px;}
+.tower[data-type="1"] {background-position: -103px 0px;}
+.tower[data-type="3"] {background-position: -1px 0px;}
+.tower[data-type="5"] {background-position: -443px 0px;}
+.tower[data-type="7"] {background-position: -35px 0px;}
+.tower[data-type="9"] {background-position: -376px 0px;}
+.tower[data-type="11"] {background-position: -170px 0px;}
+
+.mob[data-type="0"] {background-position: 32px -33px;}
+.mob[data-type="1"] {background-position: 32px -66px;}
+.mob[data-type="2"] {background-position: 32px -99px;}
+.mob[data-type="3"] {background-position: 32px -132px;}
+.mob[data-type="4"] {background-position: 32px -165px;}
+.mob[data-type="5"] {background-position: 32px -198px;}
+.mob[data-type="6"] {background-position: 32px -231px;}
+.mob[data-type="7"] {background-position: 32px -264px;}
+.mob[data-type="8"] {background-position: 27px -206px; background-size: 67px;}
+.mob[data-type="9"] {background-position: 50px -237px; background-size: 59px;}
+.mob[data-type="10"] {background-position: 50px -278px; background-size: 58px;}
+.mob[data-type="11"] {background-position: 46px -429px; background-size: 44px;}
+
+#towers,
+#mobs {
+    height: 90px;
+}
+
+/* ===== Tower Stats ===== */
+#spacer {
+    width: 140px;
+    overflow: hidden;
+    padding-top: 30px;
+}
+
+#towerStats {
     box-sizing: border-box;
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
-
-    transition: transform 0.3s;
-    transition-timing-function: ease-out;
+    width: 140px;
+    height: 544px;
+    padding: 5px;
+}
+#towerStats h1 {
+    padding: 0;
 }
 
 .tName {
-    font-size: 14px;
-    font-weight: bold;
-    margin-bottom: 5px;
+    font-size: 17px;
+    margin: 5px 0;
+}
+.tDesc {
+    margin: 5px 0;
 }
 
 .tUpgrade {
     margin: 10px 0;
-    /* TODO hübsche grafik */
     background-image: url("../assets/upgradebg.png");
     text-align: center;
     width: 130px;
+    height: 100px;
+}
+.tUpgrade.noUpgrade {
+    filter: grayscale(100%);
 }
 
 .tCurrentDiv {
     line-height: 20px;
-    padding-top: 15px;
-    padding-bottom: 15px;
+    padding: 15px 0;
 }
 .tNextBtn {
     background-color: transparent;
-    padding: 10px 0 10px 0;
+    padding: 7px 0;
     margin: 0;
     border: 0;
     display: block;
     width: 100%;
-    line-height: 15px;
+    line-height: 17px;
 }
 .tSellBtn {
     display: block;
@@ -324,102 +215,24 @@ button:active {
     margin: 10px 0;
 }
 
-.tAimDiv button {
-    width: 45%;
-    margin: 5px 0px;
-}
-.tAimDiv button.active {
-    border-style: inset;
-    border-color: red;
-    background-color: red;
-}
-
-
-
-/* ===== Menüs ausbelnden ===== */
-
-.hideLeft {
-    transform: translateX(-150px);
-}
-.hideRight {
-    transform: translateX(150px);
-}
-.infoHide {
-    display:none;
-}
-
 
 /* ===== Menü ===== */
-
 #menu {
+    padding: 5px;
 }
 
-#nextWave,
-#exitBtn {
-    position: absolute;
-    background-color: transparent;
-    background-image: url(../assets/wavenexit.png);
-    border: 0;
+#cash {
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: rgb(255, 219, 77);
+    text-shadow: 0px 1px 2px black;
 }
 
-#nextWave {
-    background-position: 0px 0px;
-    width: 70px;
-    height: 32px;
-    bottom: 0px;
-    right: 60px;
-}
-
-#exitBtn {
-    background-position: -72px 0px;
-    width: 42px;
-    height: 32px;
-    bottom: 0px;
-    right: 2px;
-}
-
-#showTowers,
-#cancelPlace,
-#pauseGame,
-#fastForward {
-    position: absolute;
-    background-color: transparent;
-    background-image: url(../assets/buttonsSheet32.png);
-    width: 32px;
-    height: 32px;
-    border: 0;
-}
-
-#showTowers {
-    background-position: -103px 0px;
-    bottom: 0px;
-    left: 5px;
-}
-
-#cancelPlace {
-    background-position: 0px 0px;
-    bottom: 0px;
-    left: 50px;
-}
-
-#cancelPlace:disabled {
-    display: none;
-}
-
-#pauseGame {
-    background-position: -69px 0px;
-    bottom: 0px;
-    left: 100px;
-}
-#pauseGame.paused {
-    background-position: -35px 0px
-}
-
-#fastForward {
-    background-position: -137px 0px;
-    bottom: 0px;
-    left: 140px;
-}
-#fastForward.active {
-    background-position: -171px 0px;
+#exitGame {
+    background-color: #cf4747;
+    border-color: #cf4747;
+    display: block;
+    width: 100%;
+    margin: 10px 0;
 }

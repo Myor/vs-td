@@ -11,7 +11,7 @@
 
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
-        <!--<link rel="stylesheet" href="css/style.css">-->
+        <link rel="stylesheet" href="css/style.css">
         <link rel="stylesheet" href="css/vendor/dialog-polyfill.css"/>
 
         <script src="js/vendor/pixi.js"></script>
@@ -19,106 +19,95 @@
         <script src="js/vendor/dialog-polyfill.js"></script>
     </head>
     <body>
-        <div id="content">
 
-            <div id="gameWrapper">
-                <div id="localGame" style="float: left;">
+        <div id="gameWrapper">
 
-                    <div id="localGameField"></div>
+            <div id="localGame">
 
-                    <div id="localStats">
-                        <div id="localLife">42</div>
-                        <div id="localCash">42</div>
-                    </div>
-
-                    <div id="towerMenu">
-                        <div id="towers">
-                            <div class="towerDiv">
-                                <button class="tower" data-type="0">0</button>
-                                <button class="towerInfo" data-type="0">i</button>
-                            </div>
-                            <div class="towerDiv">
-                                <button class="tower" data-type="1">1</button>
-                                <button class="towerInfo" data-type="1">i</button>
-                            </div>
-                            <div class="towerDiv">
-                                <button class="tower" data-type="3">3</button>
-                                <button class="towerInfo" data-type="3">i</button>
-                            </div>
-                            <div class="towerDiv">
-                                <button class="tower" data-type="5">5</button>
-                                <button class="towerInfo" data-type="5">i</button>
-                            </div>
-                            <div class="towerDiv">
-                                <button class="tower" data-type="7">7</button>
-                                <button class="towerInfo" data-type="7">i</button>
-                            </div>
-                            <div class="towerDiv">
-                                <button class="tower" data-type="9">9</button>
-                                <button class="towerInfo" data-type="9">i</button>
-                            </div>
-                            <div class="towerDiv">
-                                <button class="tower" data-type="11">11</button>
-                                <button class="towerInfo" data-type="11">i</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="towerInfo"></div>
-
-                    <div id="towerStats">
-                        <div class="tName"></div>
-                        <div>Kills: <span class="tKillCount"></span></div>
-                        <div>Damage: <span class="tPower"></span></div>
-                        <div>Reload: <span class="tFreq"></span></div>
-                        <div>Radius: <span class="tRadius"></span></div>
-                        <div class="tUpgrade">
-                            <div class="tCurrentDiv">Level <span class="tCurrentLvl"></span></div>
-                            <button class="tNextBtn">
-                                Level <span class="tNextLvl"></span><br>
-                                <span class="tNextPrice"></span>$
-                            </button>
-                        </div>
-
-                        <button class="tSellBtn">Verkaufen<br>(+<span class="tSellPrice"></span>$)</button> 
-                    </div>
-
-                    <div id="menu">
-                        <!--<button id="showTowers"></button>-->
-                        <button id="cancelPlace" disabled>Cancel</button>
-                        <button id="pauseGame">Pause</button>
-                        <button id="exitGame">Exit</button>
-                    </div>
-
-                    <div id="mobMenu">
-                        <div id="mobs">
-                            <button class="mob" data-type="0">0</button>
-                            <button class="mob" data-type="1">1</button>
-                            <button class="mob" data-type="2">2</button>
-                            <button class="mob" data-type="3">3</button>
-                            <button class="mob" data-type="4">4</button>
-                            <button class="mob" data-type="5">5</button>
-                            <button class="mob" data-type="6">6</button>
-                            <button class="mob" data-type="7">7</button>
-                            <button class="mob" data-type="8">8</button>
-                            <button class="mob" data-type="9">9</button>
-                            <button class="mob" data-type="10">10</button>
-                            <button class="mob" data-type="11">11</button>
-                        </div>
-                    </div>
-
+                <div id="localStats" class="gameStats">
+                    <div class="gameLifeBar"></div>
+                    <div id="localLife" class="gameLife">42</div>
+                    <div id="localName" class="gameName">Name</div>
                 </div>
 
-                <div id="remoteGame">
-                    <div id="remoteGameField"></div>
-                    
-                    <div id="remoteStats">
-                        <div id="remoteLife">42</div>
+                <div id="localGameField"></div>
+
+                <div id="towerMenu">
+                    <div id="towers">
+                        <button class="tower" data-type="0" data-price="$999">0</button>
+                        <button class="tower" data-type="1" data-price="$999">1</button>
+                        <button class="tower" data-type="3" data-price="$999">3</button>
+                        <button class="tower" data-type="5" data-price="$999">5</button>
+                        <button class="tower" data-type="7" data-price="$999">7</button>
+                        <button class="tower" data-type="9" data-price="$999">9</button>
+                        <button class="tower" data-type="11" data-price="$999">11</button>
                     </div>
+                    <h1>Türme</h1>
                 </div>
 
             </div>
+
+            <div id="spacer">
+
+                <div id="towerStats">
+                    <h1>Turm Info</h1>
+                    <div class="tName">name</div>
+                    <div class="tDesc">desc</div>
+                    <div>Kills: <span class="tKillCount"></span></div>
+                    <div>Stärke: <span class="tPower"></span></div>
+                    <div>Nachladen: <span class="tFreq"></span></div>
+                    <div>Radius: <span class="tRadius"></span></div>
+                    <div class="tUpgrade">
+                        <div class="tCurrentDiv">Level <span class="tCurrentLvl"></span></div>
+                        <button class="tNextBtn">
+                            Level <span class="tNextLvl"></span><br>
+                            <span class="tNextPrice"></span>$
+                        </button>
+                    </div>
+
+                    <button class="tSellBtn">Verkaufen<br>(+<span class="tSellPrice"></span>$)</button> 
+                </div>
+
+                <div id="menu">
+                    <div id="cash">$ <span id="localCash">4242</span></div>
+                    <button id="help">Hilfe</button>
+                    <button id="exitGame">Quit</button>
+                </div>
+
+            </div>
+
+            <div id="remoteGame">
+
+                <div id="remoteStats" class="gameStats">
+                    <div class="gameLifeBar"></div>
+                    <div id="remoteLife" class="gameLife">42</div>
+                    <div id="remoteName" class="gameName">Name</div>
+                </div>
+
+                <div id="remoteGameField"></div>
+
+                <div id="mobMenu">
+                    <div id="mobs">
+                        <button class="mob" data-type="0" data-price="$999">0</button>
+                        <button class="mob" data-type="1" data-price="$999">1</button>
+                        <button class="mob" data-type="2" data-price="$999">2</button>
+                        <button class="mob" data-type="3" data-price="$999">3</button>
+                        <button class="mob" data-type="4" data-price="$999">4</button>
+                        <button class="mob" data-type="5" data-price="$999">5</button>
+                        <button class="mob" data-type="6" data-price="$999">6</button>
+                        <button class="mob" data-type="7" data-price="$999">7</button>
+                        <button class="mob" data-type="8" data-price="$999">8</button>
+                        <button class="mob" data-type="9" data-price="$999">9</button>
+                        <button class="mob" data-type="10" data-price="$999">10</button>
+                        <button class="mob" data-type="11" data-price="$999">11</button>
+                    </div>
+                    <h1>Angreifer</h1>
+                </div>
+
+            </div>
+
         </div>
+
 
         <script src="js/utils.js"></script>
         <script src="js/setup.js"></script>
