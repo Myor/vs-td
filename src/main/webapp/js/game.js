@@ -165,6 +165,7 @@ Game.prototype.remoteHit = function () {
   this.life -= 1;
   if (this.life <= 0) {
     this.life = 0;
+    console.log("gewonnen");
   }
   ui.updateRemoteLife();
 };

@@ -59,6 +59,7 @@ game.start = function () {
   game.setupMapTextures();
   game.map = game.maps[0];
   game.local = new Game(document.getElementById("localGameField"));
+  game.local.fullLife = 100;
   game.local.life = 100;
   game.local.addCash(9999);
   game.local.initGame();
@@ -67,6 +68,7 @@ game.start = function () {
   game.local.startGameLoop();
 
   game.remote = new Game(document.getElementById("remoteGameField"));
+  game.remote.fullLife = 100;
   game.remote.life = 100;
   game.remote.initGame();
   game.remote.initRemote();
