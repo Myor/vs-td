@@ -41,9 +41,9 @@ public class LobbyServlet extends HttpServlet {
             }
         }
 
-        JsonWriter jsonWriter = Json.createWriter(response.getWriter());
-        jsonWriter.writeArray(objBuilder.build());
-        jsonWriter.close();
+        try (JsonWriter jsonWriter = Json.createWriter(response.getWriter())) {
+            jsonWriter.writeArray(objBuilder.build());
+        }
 
     }
 

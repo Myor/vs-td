@@ -3,8 +3,8 @@
 var towerTypes = [];
 
 towerTypes[0] = {
-  name: "Wall",
-  desc: "Helps you maze.",
+  name: "Alien Wand",
+  desc: "Hilft Labyrinthe zu bauen",
   level: 0,
   isBlocking: true,
   price: 10,
@@ -14,7 +14,7 @@ towerTypes[0] = {
 
 towerTypes[1] = {
   name: "Laser Tower",
-  desc: "Shoots lasers.",
+  desc: "Schießt Laserstrahlen",
   level: 0,
   isBlocking: true,
   radius: 2,
@@ -81,8 +81,8 @@ towerTypes[1] = {
 };
 
 towerTypes[2] = {
-  name: "Strong Laser Tower",
-  desc: "Even more lasers.",
+  name: "Starker Laser Tower",
+  desc: "Schießt extra starke Laserstrahlen",
   level: 1,
   isBlocking: true,
   radius: 3,
@@ -150,7 +150,7 @@ towerTypes[2] = {
 
 towerTypes[3] = {
   name: "Sharpshooter",
-  desc: "Slow long range attack.",
+  desc: "Laserkanone für weite Entfernungen",
   level: 0,
   isBlocking: true,
   radius: 7,
@@ -213,7 +213,7 @@ towerTypes[3] = {
 
 towerTypes[4] = {
   name: "Special Sharpshooter",
-  desc: "Stronger and further than ever.",
+  desc: "Schießt noch weiter",
   level: 1,
   isBlocking: true,
   radius: 10,
@@ -276,7 +276,7 @@ towerTypes[4] = {
 
 towerTypes[5] = {
   name: "Slime",
-  desc: "Can be placed on path. Will do damage on contact.",
+  desc: "Kann auf den Pfad gelegt werden. Schaden bei Berührung",
   level: 0,
   isBlocking: false,
   radius: 0.4,
@@ -292,8 +292,8 @@ towerTypes[5] = {
 };
 
 towerTypes[6] = {
-  name: "Toxic Slime",
-  desc: "Can be placed on path. Will do more damage on contact.",
+  name: "Gift Slime",
+  desc: "Besonders giftiger Slime",
   level: 1,
   isBlocking: false,
   radius: 0.4,
@@ -310,7 +310,7 @@ towerTypes[6] = {
 
 towerTypes[7] = {
   name: "AoE Tower",
-  desc: "Damages all creeps in the radius.",
+  desc: "Macht gewaltigen Flächenschaden",
   level: 0,
   isBlocking: true,
   radius: 1.5,
@@ -372,7 +372,7 @@ towerTypes[7] = {
 
 towerTypes[8] = {
   name: "AoE Tower 2",
-  desc: "A lot bigger radius",
+  desc: "Deutlich mehr Reichweite",
   level: 1,
   isBlocking: true,
   radius: 3,
@@ -434,7 +434,7 @@ towerTypes[8] = {
 
 towerTypes[9] = {
   name: "Ufo",
-  desc: "Shoots lightning bolts",
+  desc: "Schießt Blitze",
   level: 0,
   isBlocking: true,
   radius: 4,
@@ -501,7 +501,7 @@ towerTypes[9] = {
 
 towerTypes[10] = {
   name: "Ufo 2",
-  desc: "Shoots lightning bolts.",
+  desc: "Schießt Blitze",
   level: 1,
   isBlocking: true,
   radius: 6,
@@ -568,7 +568,7 @@ towerTypes[10] = {
 
 towerTypes[11] = {
   name: "Aura Tower",
-  desc: "Boosts stats of surrounding towers.",
+  desc: "Verstärkt Schaden und Geschwindigkeit der umliegenden Türme",
   level: 0,
   isBlocking: true,
   radius: 1.5,
@@ -608,7 +608,7 @@ towerTypes[11] = {
 
 towerTypes[12] = {
   name: "Aura Tower 2",
-  desc: "Boosts stats of surrounding towers.",
+  desc: "Verstärkt Schaden und Geschwindigkeit der umliegenden Türme",
   level: 1,
   isBlocking: true,
   radius: 2,
