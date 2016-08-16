@@ -31,7 +31,12 @@ public class SignalEndpoint {
                 // Lobby erstellen
                 String title = getParameter(session, "title");
                 String map = getParameter(session, "map");
-                lobbys.put(id, new Lobby(session, title, map));
+                if (title == null || map == null) {
+                    // Keine login-daten
+                    session.close(new CloseReason(CloseCodes.VIOLATED_POLICY, null));
+                } else {
+                    lobbys.put(id, new Lobby(session, title, map));
+                }
             } else if (lobby.canJoin()) {
                 // Lobby beitreten
                 lobby.join(session);
@@ -70,8 +75,12 @@ public class SignalEndpoint {
 
     private String getParameter(Session session, String param) {
         List<String> list = session.getRequestParameterMap().get(param);
-        if(list == null) return "";
-        if(list.isEmpty()) return "";
+        if (list == null) {
+            return null;
+        }
+        if (list.isEmpty()) {
+            return null;
+        }
         return list.get(0);
     }
 

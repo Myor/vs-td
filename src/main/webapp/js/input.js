@@ -30,7 +30,7 @@ var ui = {};
   // Menu
   var cancelPlaceBtn = id("cancelPlace");
   var helpBtn = id("helpGame");
-  var exitBtn = id("exitGame");
+  var exitGameBtn = id("exitGame");
 
   // Towers
   var towerListEl = id("towers");
@@ -56,7 +56,7 @@ var ui = {};
 
   // Dialogs
   var helpDialogEl = id("helpDialog");
-  var helpCloseBtn = id("closeHelp");
+  var closeHelpBtn = id("closeHelp");
 
   var newLobbyDialogEl = id("newLobbyDialog");
   var newLobbyTitleEl = id("newLobbyTitle");
@@ -67,9 +67,14 @@ var ui = {};
   var conLostDialogEl = id("conLostDialog");
   var closeConLostBtn = id("closeConLost");
 
+  var exitDialogEl = id("exitDialog");
+  var exitBtn = id("exit");
+  var closeExitBtn = id("closeExit");
+
   dialogPolyfill.registerDialog(helpDialogEl);
   dialogPolyfill.registerDialog(newLobbyDialogEl);
   dialogPolyfill.registerDialog(conLostDialogEl);
+  dialogPolyfill.registerDialog(exitDialogEl);
 
   // ===== Lobby Join =====
   var lobbyId;
@@ -126,13 +131,17 @@ var ui = {};
   }
 
   function closeGame() {
+    if (exitDialogEl.open) exitDialogEl.close();
+    if (helpDialogEl.open) helpDialogEl.close();
     ui.showConLost();
     ui.toJoinMenu();
     game.exit();
     game.connection = null;
   }
 
-  function quitGame() {
+  function exitGame() {
+    if (exitDialogEl.open) exitDialogEl.close();
+    if (helpDialogEl.open) helpDialogEl.close();
     game.connection.off("connect", startGame);
     game.connection.off("close", closeGame);
     game.connection.close();
@@ -229,12 +238,23 @@ var ui = {};
 
   // ===== Button Event Handler =====
 
-  exitBtn.addEventListener("click", quitGame);
+  exitGameBtn.addEventListener("click", function () {
+    exitDialogEl.show();
+  });
+
+  exitBtn.addEventListener("click", function () {
+    exitDialogEl.close();
+    exitGame();
+  });
+
+  closeExitBtn.addEventListener("click", function () {
+    exitDialogEl.close();
+  });
 
   helpBtn.addEventListener("click", function () {
     helpDialogEl.show();
   });
-  helpCloseBtn.addEventListener("click", function () {
+  closeHelpBtn.addEventListener("click", function () {
     helpDialogEl.close();
   });
 
