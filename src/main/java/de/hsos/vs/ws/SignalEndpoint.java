@@ -32,14 +32,16 @@ public class SignalEndpoint {
                 String title = getParameter(session, "title");
                 String map = getParameter(session, "map");
                 if (title == null || map == null) {
-                    // Keine login-daten
+                    // Die nötigen Daten nicht vorhanden
                     session.close(new CloseReason(CloseCodes.VIOLATED_POLICY, null));
                 } else {
+                    // Neue Lobby erstellen
                     lobbys.put(id, new Lobby(session, title, map));
                 }
             } else if (lobby.canJoin()) {
                 // Lobby beitreten
                 lobby.join(session);
+                // Anfrage senden
                 lobby.signal(session, lobby.buildJoinRequest().toString());
             } else {
                 // Lobby voll
@@ -59,7 +61,7 @@ public class SignalEndpoint {
     @OnClose
     public void onClose(Session session, @PathParam("lobby") String id) throws IOException {
         logger.log(Level.INFO, "onClose lobby {0}", id);
-
+        // Lobby aufräumen, wenn eine Session Geschlossen wurde
         synchronized (lobbys) {
             Lobby lobby = lobbys.get(id);
             if (lobby != null && lobby.quit(session)) {
@@ -73,6 +75,8 @@ public class SignalEndpoint {
         logger.log(Level.SEVERE, "Error in WS Endpoint", t);
     }
 
+    // Einen GET-Parameter aus den initialen WebSocket-HTTP-Request lesen
+    // null, wenn nicht vorhanden
     private String getParameter(Session session, String param) {
         List<String> list = session.getRequestParameterMap().get(param);
         if (list == null) {

@@ -5,6 +5,10 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.websocket.Session;
 
+/**
+ * Klasse für eine Lobby, in der zwei Spieler beitreten können
+ * Es werden je zwei WebSocket Session gespeichert, um Signale auszutauschen
+ */
 public class Lobby {
 
     private Session p1;
@@ -12,20 +16,38 @@ public class Lobby {
     private String title;
     private String map;
 
+    /**
+     *
+     * @param session Session des Erstellers
+     * @param title Titel der Lobby
+     * @param map Karte die gespielt werden soll
+     */
     public Lobby(Session session, String title, String map) {
         p1 = session;
         this.title = title;
         this.map = map;
     }
 
+    /**
+     * @return true, wenn der zweite Platz noch frei ist
+     */
     public boolean canJoin() {
         return p2 == null;
     }
 
+    /**
+     * @param session Session der zweiten Verbindung
+     */
     public void join(Session session) {
         p2 = session;
     }
 
+    /**
+     * Sende text an die jeweils andere Session
+     *
+     * @param sender Die Session des Senders
+     * @param text text zum senden
+     */
     public void signal(Session sender, String text) {
         if (p1 == sender && p2 != null) {
             p2.getAsyncRemote().sendText(text);
@@ -34,6 +56,14 @@ public class Lobby {
         }
     }
 
+    /**
+     * Beim entfernen einer Session werden beide Verbindungen beendet
+     * So kann die sofort gelöscht werden
+     *
+     * @param session Session, welche die Lobby verlässt
+     * @return  true, wenn die Session in der Lobby war, sonst false
+     * @throws IOException
+     */
     public boolean quit(Session session) throws IOException {
 
         if (session != p1 && session != p2) {
@@ -50,12 +80,24 @@ public class Lobby {
 
     }
 
+    /**
+     * Baut die Anfrage für den Session Ersteller,
+     * damit dieser den Beitritt eines weiteren Spieler erfährt
+     *
+     * @return JsonObjekt für die Anfrage
+     */
     public JsonObject buildJoinRequest() {
         return Json.createObjectBuilder()
                 .add("action", "join-request")
                 .build();
     }
 
+    /**
+     * Baut ein Objekt, dass Infos über die Lobby enthällt
+     *
+     * @param id ID der Lobby
+     * @return JsonObjekt mit all
+     */
     public JsonObject buildLobbyDescription(String id) {
         return Json.createObjectBuilder()
                 .add("id", id)

@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 public class LobbyServlet extends HttpServlet {
 
     /**
-     * Handles the HTTP GET method.
+     * Gibt die Liste aller Lobbys (welche ein Platz frei haben) als JSON Array zurück
      *
      * @param request servlet request
      * @param response servlet response
