@@ -12,30 +12,24 @@ var ws;
 var peerConnection;
 var dataChannel;
 
-//var dataChannelSend = document.querySelector("textarea#dataChannelSend");
-var dataChannelSend = document.getElementById("dataChannelSend");
-var lobbyId = document.querySelector("input#lobby-id");
-var joinButton = document.querySelector("button#lobby-join");
-
-document.querySelector("button#sendButton").onclick = sendData;
-document.querySelector("button#lobby-quit").onclick = closeAll;
-
-
-joinButton.onclick = function () {
-  joinLobby(lobbyId.value);
-};
+function createLobby(id, title, map) {
+  var url = new URL("join/" + id, location.href);
+  url.searchParams.set("title", title);
+  url.searchParams.set("map", map);
+  url.protocol = "ws:";
+  connectWS(url.toString());
+}
 
 function joinLobby(id) {
-
   var url = new URL("join/" + id, location.href);
   url.protocol = "ws:";
+  connectWS(url.toString());
+}
 
-  ws = new WebSocket(url.toString());
-
+function connectWS(url) {
+  ws = new WebSocket(url);
   ws.onmessage = onSignalMessage;
   ws.onclose = forceCloseAll;
-
-  console.log("Created Websocket");
 }
 
 function onSignalMessage(event) {

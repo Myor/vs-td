@@ -9,9 +9,13 @@ public class Lobby {
 
     private Session p1;
     private Session p2;
+    private String title;
+    private String map;
 
-    public Lobby(Session session) {
+    public Lobby(Session session, String title, String map) {
         p1 = session;
+        this.title = title;
+        this.map = map;
     }
 
     public boolean canJoin() {
@@ -49,16 +53,14 @@ public class Lobby {
     public JsonObject buildJoinRequest() {
         return Json.createObjectBuilder()
                 .add("action", "join-request")
-                .add("username", "mia")
                 .build();
     }
 
     public JsonObject buildLobbyDescription(String id) {
         return Json.createObjectBuilder()
                 .add("id", id)
-                .add("title", "Lobby 1234")
-                .add("username", "max")
-                .add("map", 0)
+                .add("title", this.title)
+                .add("map", this.map)
                 .build();
     }
 

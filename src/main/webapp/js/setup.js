@@ -47,8 +47,7 @@ delete PIXI.WebGLRenderer.__plugins.accessibility;
 
 
 game.setup = function () {
-
-//  game.start();
+  ui.toJoinMenu();
 
 };
 

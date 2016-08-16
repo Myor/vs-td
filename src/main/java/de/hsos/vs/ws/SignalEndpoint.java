@@ -3,6 +3,7 @@ package de.hsos.vs.ws;
 import de.hsos.vs.td.Lobby;
 import static de.hsos.vs.td.LobbyList.lobbys;
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.websocket.CloseReason;
@@ -28,7 +29,9 @@ public class SignalEndpoint {
             Lobby lobby = lobbys.get(id);
             if (lobby == null) {
                 // Lobby erstellen
-                lobbys.put(id, new Lobby(session));
+                String title = getParameter(session, "title");
+                String map = getParameter(session, "map");
+                lobbys.put(id, new Lobby(session, title, map));
             } else if (lobby.canJoin()) {
                 // Lobby beitreten
                 lobby.join(session);
@@ -63,6 +66,13 @@ public class SignalEndpoint {
     @OnError
     public void onError(Throwable t) {
         logger.log(Level.SEVERE, "Error in WS Endpoint", t);
+    }
+
+    private String getParameter(Session session, String param) {
+        List<String> list = session.getRequestParameterMap().get(param);
+        if(list == null) return "";
+        if(list.isEmpty()) return "";
+        return list.get(0);
     }
 
 }
