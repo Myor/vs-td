@@ -16,8 +16,6 @@ var ui = {};
   var lobbyList = id("lobbyList");
   var joinWaitEl = id("joinWait");
 
-  var lobbyTmpl = id("lobbyTmpl");
-
   // Game
   var gameWrapper = id("gameWrapper");
 
@@ -73,6 +71,7 @@ var ui = {};
   dialogPolyfill.registerDialog(newLobbyDialog);
   dialogPolyfill.registerDialog(conLostDialog);
 
+  // ===== Lobby Join =====
   var lobbyId;
 
   newLobbyBtn.addEventListener("click", function () {
@@ -91,13 +90,13 @@ var ui = {};
     var lobbyTitle = newLobbyTitle.value !== "" ? newLobbyTitle.value : newLobbyTitle.placeholder;
     var lobbyMap = parseInt(newLobbyMap.value);
 
-    createLobby(lobbyId, lobbyTitle, lobbyMap);
+    net.connection = new PeerConnection(lobbyId, lobbyTitle, lobbyMap);
 
     ui.toJoinWait();
   });
 
   lobbyListFetchBtn.addEventListener("click", function () {
-    ui.fetchLobbys();
+    net.fetchLobbys();
   });
 
   lobbyList.addEventListener("click", function (e) {
@@ -105,14 +104,16 @@ var ui = {};
     if (btn.matches(".joinLobby")) {
       var lobbyId = btn.dataset.id;
       var map = btn.dataset.map;
-      joinLobby(lobbyId);
+
+      net.connection = new PeerConnection(lobbyId);
+
       ui.toJoinWait();
     }
   });
 
   // Join Menüs
   ui.toJoinMenu = function () {
-    ui.fetchLobbys();
+    net.fetchLobbys();
     joinMenuEl.classList.remove("hidden");
     joinLobbyEl.classList.remove("hidden");
     joinWaitEl.classList.add("hidden");
@@ -129,28 +130,7 @@ var ui = {};
     gameWrapper.classList.remove("hidden");
   };
 
-  ui.fetchLobbys = function () {
-    fetch("lobbys").then(function (response) {
-      return response.json();
-    }).then(function (json) {
 
-      if (json.length === 0) {
-        lobbyList.textContent = "Keine Lobbys gefunden.";
-      } else {
-        lobbyList.innerHTML = "";
-        json.forEach(function (lobby) {
-          lobbyTmpl.content.querySelector(".lobbyTitle").textContent = lobby.title;
-          lobbyTmpl.content.querySelector(".joinLobby").dataset.id = lobby.id;
-          lobbyTmpl.content.querySelector(".joinLobby").dataset.map = lobby.map;
-
-          lobbyList.appendChild(document.importNode(lobbyTmpl.content, true));
-        });
-      }
-
-    }).catch(function (err) {
-      console.error(err);
-    });
-  };
 
   // ===== Events dynamisch erstellte Elemente =====
   ui.setupLocalInput = function () {
@@ -162,7 +142,7 @@ var ui = {};
     game.local.canvasEl.addEventListener("click", clickHandler);
     game.local.canvasEl.addEventListener("touchend", touchHandler);
 
-  //  document.addEventListener("visibilitychange", visibleHandler);
+    //  document.addEventListener("visibilitychange", visibleHandler);
   };
 
   ui.updateCash = function () {
@@ -271,7 +251,7 @@ var ui = {};
   }
 
   function startPlace() {
-  //  cancelPlaceBtn.disabled = false;
+    //  cancelPlaceBtn.disabled = false;
     addPlaceListeners();
     game.local.setSelectedTower(null);
     selectBlocked = true;
@@ -279,7 +259,7 @@ var ui = {};
   }
 
   function endPlace() {
-  //  cancelPlaceBtn.disabled = true;
+    //  cancelPlaceBtn.disabled = true;
     removePlaceListeners();
     game.local.hideSelection();
     selectBlocked = false;

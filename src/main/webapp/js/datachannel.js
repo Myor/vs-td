@@ -1,6 +1,8 @@
 "use strict";
 
-if (window.webkitRTCPeerConnection != undefined) window.RTCPeerConnection = window.webkitRTCPeerConnection;
+var net = {};
+
+var RTCPeerConnection = window.webkitRTCPeerConnection || window.RTCPeerConnection;
 
 var configuration = {
   iceServers: [{
@@ -8,206 +10,199 @@ var configuration = {
     }]
 };
 
-var ws;
-var peerConnection;
-var dataChannel;
+var PeerConnection = function (id, title, map) {
 
-function createLobby(id, title, map) {
+  this.ws = null;
+  this.peerConnection = null;
+  this.dataChannel = null;
+
+  this._sendSignal = this._sendSignal.bind(this);
+  this._onSignalMessage = this._onSignalMessage.bind(this);
+  this._createPeerConnection = this._createPeerConnection.bind(this);
+  this._sendOffer = this._sendOffer.bind(this);
+  this._handleOffer = this._handleOffer.bind(this);
+  this._handleAnswer = this._handleAnswer.bind(this);
+  this._iceCandidateCallback = this._iceCandidateCallback.bind(this);
+  this._handleIceCandidate = this._handleIceCandidate.bind(this);
+  this._receiveChannelCallback = this._receiveChannelCallback.bind(this);
+  this._onMessageCallback = this._onMessageCallback.bind(this);
+  this._dataChannelOpen = this._dataChannelOpen.bind(this);
+  this._forceCloseAll = this._forceCloseAll.bind(this);
+
+
   var url = new URL("join/" + id, location.href);
-  url.searchParams.set("title", title);
-  url.searchParams.set("map", map);
+  if (title !== undefined) {
+    url.searchParams.set("title", title);
+    url.searchParams.set("map", map);
+  }
   url.protocol = "ws:";
-  connectWS(url.toString());
-}
 
-function joinLobby(id) {
-  var url = new URL("join/" + id, location.href);
-  url.protocol = "ws:";
-  connectWS(url.toString());
-}
+  this.ws = new WebSocket(url);
+  this.ws.onmessage = this._onSignalMessage;
+  this.ws.onclose = this._forceCloseAll;
 
-function connectWS(url) {
-  ws = new WebSocket(url);
-  ws.onmessage = onSignalMessage;
-  ws.onclose = forceCloseAll;
-}
+};
 
-function onSignalMessage(event) {
+PeerConnection.prototype = new PIXI.utils.EventEmitter();
+PeerConnection.prototype.constructor = PeerConnection;
 
+
+PeerConnection.prototype._sendSignal = function (obj) {
+  if (this.ws !== null) {
+    this.ws.send(JSON.stringify(obj));
+  }
+};
+
+PeerConnection.prototype._onSignalMessage = function (event) {
   try {
 
     var msg = JSON.parse(event.data);
-
-    console.log("Websocket received", msg.action);
-    console.log(msg);
-
     var action = msg.action;
 
     if (action === "join-request") {
-      if (window.confirm("soll user joinen?")) {
-        sendOffer();
-      } else {
-        console.log("quit");
-        closeAll();
-      }
+      this._sendOffer();
     } else if (action === "sdp-offer") {
-      handleOffer(msg);
+      this._handleOffer(msg);
     } else if (action === "sdp-answer") {
-      handleAnswer(msg);
+      this._handleAnswer(msg);
     } else if (action === "ice-candidate") {
-      handleIceCandidate(msg);
+      this._handleIceCandidate(msg);
     } else {
       console.log("Unbekannte Signal Message");
     }
 
   } catch (err) {
-    forceCloseAll(err);
+    this._forceCloseAll(err);
   }
-}
-function sendSignal(obj) {
-  if (ws) {
-    console.log("WebSocket sending", obj.action);
-    ws.send(JSON.stringify(obj));
-  }
-}
+};
 
-function createPeerConnection() {
-  peerConnection = new RTCPeerConnection(configuration);
-  peerConnection.onicecandidate = iceCandidateCallback;
-}
+PeerConnection.prototype._createPeerConnection = function () {
+  this.peerConnection = new RTCPeerConnection(configuration);
+  this.peerConnection.onicecandidate = this._iceCandidateCallback;
+};
 
-function sendOffer() {
+PeerConnection.prototype._sendOffer = function () {
 
-  createPeerConnection();
+  this._createPeerConnection();
 
-  dataChannel = peerConnection.createDataChannel("dataChannel");
-  dataChannel.onmessage = onMessageCallback;
-  dataChannel.onopen = dataChannelOpen;
-  dataChannel.onclose = forceCloseAll;
+  this.dataChannel = this.peerConnection.createDataChannel("dataChannel");
+  this.dataChannel.onmessage = this._onMessageCallback;
+  this.dataChannel.onopen = this._dataChannelOpen;
+  this.dataChannel.onclose = this._forceCloseAll;
 
   console.log("Created peer connection & data channel");
+  var con = this;
 
-  peerConnection.createOffer().then(function (sdp) {
-    return peerConnection.setLocalDescription(sdp);
+  this.peerConnection.createOffer().then(function (sdp) {
+    return con.peerConnection.setLocalDescription(sdp);
   }).then(function () {
 
-    sendSignal({
+    con._sendSignal({
       action: "sdp-offer",
-      sdp: peerConnection.localDescription
+      sdp: con.peerConnection.localDescription
     });
 
-  }).catch(forceCloseAll);
-}
+  }).catch(this._forceCloseAll);
+};
 
-function handleOffer(msg) {
-
+PeerConnection.prototype._handleOffer = function (msg) {
   var sdp = new RTCSessionDescription(msg.sdp);
 
-  createPeerConnection();
+  this._createPeerConnection();
 
-  peerConnection.ondatachannel = receiveChannelCallback;
+  this.peerConnection.ondatachannel = this._receiveChannelCallback;
   console.log("Created peer connection");
+  var con = this;
 
-  peerConnection.setRemoteDescription(sdp).then(function () {
-    return peerConnection.createAnswer();
+  this.peerConnection.setRemoteDescription(sdp).then(function () {
+    return con.peerConnection.createAnswer();
   }).then(function (sdp) {
-    return peerConnection.setLocalDescription(sdp);
+    return con.peerConnection.setLocalDescription(sdp);
   }).then(function () {
 
-    sendSignal({
+    con._sendSignal({
       action: "sdp-answer",
-      sdp: peerConnection.localDescription
+      sdp: con.peerConnection.localDescription
     });
 
-  }).catch(forceCloseAll);
-}
+  }).catch(this._forceCloseAll);
+};
 
-function handleAnswer(msg) {
-
+PeerConnection.prototype._handleAnswer = function (msg) {
   var sdp = new RTCSessionDescription(msg.sdp);
-  peerConnection.setRemoteDescription(sdp).catch(forceCloseAll);
-}
+  this.peerConnection.setRemoteDescription(sdp).catch(this._forceCloseAll);
+};
 
-function iceCandidateCallback(event) {
+PeerConnection.prototype._iceCandidateCallback = function (event) {
   if (event.candidate) {
-    sendSignal({
+    this._sendSignal({
       action: "ice-candidate",
       candidate: event.candidate
     });
   } else {
     console.log("ICE Done");
   }
-}
+};
 
-function handleIceCandidate(msg) {
-  peerConnection.addIceCandidate(new RTCIceCandidate(msg.candidate)).catch(forceCloseAll);
-}
+PeerConnection.prototype._handleIceCandidate = function (msg) {
+  this.peerConnection.addIceCandidate(new RTCIceCandidate(msg.candidate)).catch(this._forceCloseAll);
+};
 
-function receiveChannelCallback(event) {
+PeerConnection.prototype._receiveChannelCallback = function (event) {
   console.log("Got data channel");
-  dataChannel = event.channel;
-  dataChannel.onmessage = onMessageCallback;
-  dataChannel.onopen = dataChannelOpen;
-  dataChannel.onclose = forceCloseAll;
-}
+  this.dataChannel = event.channel;
+  this.dataChannel.onmessage = this._onMessageCallback;
+  this.dataChannel.onopen = this._dataChannelOpen;
+  this.dataChannel.onclose = this._forceCloseAll;
+};
 
-function onMessageCallback(event) {
+PeerConnection.prototype._onMessageCallback = function (event) {
+  this.emit("message", event.data);
   console.log("WebRTC Received", event.data);
-}
+};
 
-function sendData() {
-  var data = dataChannelSend.value;
-  dataChannel.send(data);
-  console.log("WebRTC Sent Data", data);
-}
+PeerConnection.prototype._dataChannelOpen = function () {
+  this.ws.onmessage = null;
+  this.ws.onclose = null;
+  this.ws.close();
+  this.ws = null;
 
-function sendGameState() {
-  var gameData = {
-    mobs: game.mobs,
-    towers: game.towers
-  };
-  dataChannel.send(gameData);
-}
-function dataChannelOpen() {
-  ws.onmessage = null;
-  ws.onclose = null;
-  ws.close();
-  ws = null;
-  // finish
-  console.log("DONE, Start Game...");
-}
+  this.emit("connect");
+};
 
-function forceCloseAll(err) {
-  console.log("Verbindung wurde beendet");
+PeerConnection.prototype._forceCloseAll = function (err) {
   if (err) console.error(err);
   //...
-  closeAll();
-}
+  this.close();
+};
 
-function closeAll() {
-  console.log("closing all connections");
+PeerConnection.prototype.sendData = function (data) {
+  this.dataChannel.send(data);
+};
 
-  if (ws) {
-    ws.onmessage = null;
-    ws.onclose = null;
-    ws.close();
+PeerConnection.prototype.close = function () {
+
+  if (this.ws !== null) {
+    this.ws.onmessage = null;
+    this.ws.onclose = null;
+    this.ws.close();
   }
 
-  if (dataChannel) {
-    dataChannel.onmessage = null;
-    dataChannel.onopen = null;
-    dataChannel.onclose = null;
-    dataChannel.close();
+  if (this.dataChannel !== null) {
+    this.dataChannel.onmessage = null;
+    this.dataChannel.onopen = null;
+    this.dataChannel.onclose = null;
+    this.dataChannel.close();
   }
 
-  if (peerConnection) {
-    peerConnection.ondatachannel = null;
-    peerConnection.onicecandidate = null;
-    peerConnection.close();
+  if (this.peerConnection !== null) {
+    this.peerConnection.ondatachannel = null;
+    this.peerConnection.onicecandidate = null;
+    this.peerConnection.close();
   }
 
-  ws = null;
-  dataChannel = null;
-  peerConnection = null;
+  this.ws = null;
+  this.dataChannel = null;
+  this.peerConnection = null;
 
-}
+};
