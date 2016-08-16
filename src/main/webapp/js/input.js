@@ -13,11 +13,11 @@ var ui = {};
   var joinLobbyEl = id("joinLobby");
   var newLobbyBtn = id("newLobby");
   var lobbyListFetchBtn = id("lobbyListFetch");
-  var lobbyList = id("lobbyList");
+  var lobbyListEl = id("lobbyList");
   var joinWaitEl = id("joinWait");
 
   // Game
-  var gameWrapper = id("gameWrapper");
+  var gameWrapperEl = id("gameWrapper");
 
   // Stats
   var localLifeEl = id("localLife");
@@ -33,64 +33,67 @@ var ui = {};
   var exitBtn = id("exitGame");
 
   // Towers
-  var towerList = id("towers");
-  var towerStats = id("towerStats");
+  var towerListEl = id("towers");
+  var towerStatsEl = id("towerStats");
 
   // Selected-infos
-  var tName = towerStats.querySelector(".tName");
-  var tDesc = towerStats.querySelector(".tDesc");
-  var tKillCount = towerStats.querySelector(".tKillCount");
-  var tPower = towerStats.querySelector(".tPower");
-  var tFreq = towerStats.querySelector(".tFreq");
-  var tRadius = towerStats.querySelector(".tRadius");
-  var tUpgrade = towerStats.querySelector(".tUpgrade");
-  var tCurrentLvl = towerStats.querySelector(".tCurrentLvl");
-  var tNextBtn = towerStats.querySelector(".tNextBtn");
-  var tNextLvl = towerStats.querySelector(".tNextLvl");
-  var tNextPrice = towerStats.querySelector(".tNextPrice");
-  var tSellBtn = towerStats.querySelector(".tSellBtn");
-  var tSellPrice = towerStats.querySelector(".tSellPrice");
+  var tName = towerStatsEl.querySelector(".tName");
+  var tDesc = towerStatsEl.querySelector(".tDesc");
+  var tKillCount = towerStatsEl.querySelector(".tKillCount");
+  var tPower = towerStatsEl.querySelector(".tPower");
+  var tFreq = towerStatsEl.querySelector(".tFreq");
+  var tRadius = towerStatsEl.querySelector(".tRadius");
+  var tUpgrade = towerStatsEl.querySelector(".tUpgrade");
+  var tCurrentLvl = towerStatsEl.querySelector(".tCurrentLvl");
+  var tNextBtn = towerStatsEl.querySelector(".tNextBtn");
+  var tNextLvl = towerStatsEl.querySelector(".tNextLvl");
+  var tNextPrice = towerStatsEl.querySelector(".tNextPrice");
+  var tSellBtn = towerStatsEl.querySelector(".tSellBtn");
+  var tSellPrice = towerStatsEl.querySelector(".tSellPrice");
 
   // Mobs
   var mobList = id("mobs");
 
   // Dialogs
-  var helpDialog = id("helpDialog");
+  var helpDialogEl = id("helpDialog");
   var helpCloseBtn = id("closeHelp");
 
-  var newLobbyDialog = id("newLobbyDialog");
-  var newLobbyTitle = id("newLobbyTitle");
-  var newLobbyMap = id("newLobbyMap");
-  var closeNewLobby = id("closeNewLobby");
-  var createNewLobby = id("createNewLobby");
+  var newLobbyDialogEl = id("newLobbyDialog");
+  var newLobbyTitleEl = id("newLobbyTitle");
+  var newLobbyMapEl = id("newLobbyMap");
+  var closeNewLobbyBtn = id("closeNewLobby");
+  var createNewLobbyBtn = id("createNewLobby");
 
-  var conLostDialog = id("conLostDialog");
-  var closeConLost = id("closeConLost");
+  var conLostDialogEl = id("conLostDialog");
+  var closeConLostBtn = id("closeConLost");
 
-  dialogPolyfill.registerDialog(helpDialog);
-  dialogPolyfill.registerDialog(newLobbyDialog);
-  dialogPolyfill.registerDialog(conLostDialog);
+  dialogPolyfill.registerDialog(helpDialogEl);
+  dialogPolyfill.registerDialog(newLobbyDialogEl);
+  dialogPolyfill.registerDialog(conLostDialogEl);
 
   // ===== Lobby Join =====
   var lobbyId;
 
   newLobbyBtn.addEventListener("click", function () {
     lobbyId = Math.floor(Math.random() * 1000000000);
-    newLobbyTitle.placeholder = "Lobby" + lobbyId;
-    newLobbyDialog.showModal();
+    newLobbyTitleEl.placeholder = "Lobby" + lobbyId;
+    newLobbyDialogEl.showModal();
   });
 
-  closeNewLobby.addEventListener("click", function () {
-    newLobbyDialog.close();
+  closeNewLobbyBtn.addEventListener("click", function () {
+    newLobbyDialogEl.close();
   });
 
-  createNewLobby.addEventListener("click", function () {
-    newLobbyDialog.close();
+  createNewLobbyBtn.addEventListener("click", function () {
+    newLobbyDialogEl.close();
 
-    var lobbyTitle = newLobbyTitle.value !== "" ? newLobbyTitle.value : newLobbyTitle.placeholder;
-    var lobbyMap = parseInt(newLobbyMap.value);
+    var lobbyTitle = newLobbyTitleEl.value !== "" ? newLobbyTitleEl.value : newLobbyTitleEl.placeholder;
+    var lobbyMap = Number(newLobbyMapEl.value);
 
-    net.connection = new PeerConnection(lobbyId, lobbyTitle, lobbyMap);
+    game.mapId = lobbyMap;
+    game.connection = new PeerConnection(lobbyId, lobbyTitle, lobbyMap);
+    game.connection.on("connect", startGame);
+    game.connection.on("close", closeGame);
 
     ui.toJoinWait();
   });
@@ -99,25 +102,52 @@ var ui = {};
     net.fetchLobbys();
   });
 
-  lobbyList.addEventListener("click", function (e) {
+  lobbyListEl.addEventListener("click", function (e) {
     var btn = e.target;
     if (btn.matches(".joinLobby")) {
       var lobbyId = btn.dataset.id;
-      var map = btn.dataset.map;
 
-      net.connection = new PeerConnection(lobbyId);
+      game.mapId = Number(btn.dataset.map);
+      game.connection = new PeerConnection(lobbyId);
+      game.connection.on("connect", startGame);
+      game.connection.on("close", closeGame);
 
       ui.toJoinWait();
     }
   });
 
-  // Join Menüs
+  function startGame() {
+    ui.toGame();
+    game.start();
+    ui.updateLocalLife();
+    ui.updateRemoteLife();
+    ui.setupLocalInput();
+  }
+
+  function closeGame() {
+    ui.showConLost();
+    ui.toJoinMenu();
+    game.exit();
+    game.connection = null;
+  }
+
+  function quitGame() {
+    game.connection.off("connect", startGame);
+    game.connection.off("close", closeGame);
+    game.connection.close();
+    ui.toJoinMenu();
+    game.exit();
+    game.connection = null;
+  }
+
+  // ===== Lobby Join Menüs =====
+
   ui.toJoinMenu = function () {
     net.fetchLobbys();
     joinMenuEl.classList.remove("hidden");
     joinLobbyEl.classList.remove("hidden");
     joinWaitEl.classList.add("hidden");
-    gameWrapper.classList.add("hidden");
+    gameWrapperEl.classList.add("hidden");
   };
 
   ui.toJoinWait = function () {
@@ -127,10 +157,16 @@ var ui = {};
 
   ui.toGame = function () {
     joinMenuEl.classList.add("hidden");
-    gameWrapper.classList.remove("hidden");
+    gameWrapperEl.classList.remove("hidden");
   };
 
+  ui.showConLost = function () {
+    conLostDialogEl.show();
+  };
 
+  closeConLostBtn.addEventListener("click", function () {
+    conLostDialogEl.close();
+  });
 
   // ===== Events dynamisch erstellte Elemente =====
   ui.setupLocalInput = function () {
@@ -162,9 +198,9 @@ var ui = {};
 
   ui.showSelectedInfo = function (tower) {
     if (tower === null) {
-      towerStats.classList.add("invisible");
+      towerStatsEl.classList.add("invisible");
     } else {
-      towerStats.classList.remove("invisible");
+      towerStatsEl.classList.remove("invisible");
       fillInfoSelected(tower);
     }
   };
@@ -191,15 +227,13 @@ var ui = {};
 
   // ===== Button Event Handler =====
 
-  exitBtn.addEventListener("click", function () {
-    game.exit();
-  });
+  exitBtn.addEventListener("click", quitGame);
 
   helpBtn.addEventListener("click", function () {
-    helpDialog.show();
+    helpDialogEl.show();
   });
   helpCloseBtn.addEventListener("click", function () {
-    helpDialog.close();
+    helpDialogEl.close();
   });
 
   function visibleHandler() {
@@ -234,7 +268,7 @@ var ui = {};
   var placeType = -1;
 
   // Tower spawn
-  towerList.addEventListener("click", function (e) {
+  towerListEl.addEventListener("click", function (e) {
     // Klicks auf Tower-Button
     if (e.target.matches("button.tower")) {
       // Wenn setzen schon aktiv - beenden

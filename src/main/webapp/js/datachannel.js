@@ -172,7 +172,6 @@ PeerConnection.prototype._dataChannelOpen = function () {
 
 PeerConnection.prototype._forceCloseAll = function (err) {
   if (err) console.error(err);
-  //...
   this.close();
 };
 
@@ -186,6 +185,7 @@ PeerConnection.prototype.close = function () {
     this.ws.onmessage = null;
     this.ws.onclose = null;
     this.ws.close();
+    this.ws = null;
   }
 
   if (this.dataChannel !== null) {
@@ -193,16 +193,18 @@ PeerConnection.prototype.close = function () {
     this.dataChannel.onopen = null;
     this.dataChannel.onclose = null;
     this.dataChannel.close();
+    this.dataChannel = null;
+
   }
 
   if (this.peerConnection !== null) {
     this.peerConnection.ondatachannel = null;
     this.peerConnection.onicecandidate = null;
     this.peerConnection.close();
+    this.peerConnection = null;
+
   }
 
-  this.ws = null;
-  this.dataChannel = null;
-  this.peerConnection = null;
+  this.emit("close");
 
 };

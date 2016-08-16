@@ -23,8 +23,10 @@ game.cellsX = 12; // = resX / cellSize
 game.cellsY = 17; // = resY / cellSize
 // Rechteck für einfach hit-tests
 game.fieldRect = new PIXI.Rectangle(0, 0, game.cellsX, game.cellsY);
-// Aktuelle Karte
+// Aktuelle Spiele
 game.map = null;
+game.local = null;
+game.remote = null;
 // Simulationsschritt in ms
 game.step = 50;
 
@@ -48,13 +50,13 @@ delete PIXI.WebGLRenderer.__plugins.accessibility;
 
 game.setup = function () {
   ui.toJoinMenu();
-
 };
 
 game.start = function () {
   game.setupTextures();
   game.setupMapTextures();
-  game.map = game.maps[0];
+  game.map = game.maps[game.mapId];
+  // Lokales Spiel
   game.local = new Game(document.getElementById("localGameField"));
   game.local.fullLife = 100;
   game.local.life = 100;
@@ -63,7 +65,7 @@ game.start = function () {
   game.local.initLocal();
   game.local.initLoops();
   game.local.startGameLoop();
-
+  // Remote Spiel
   game.remote = new Game(document.getElementById("remoteGameField"));
   game.remote.fullLife = 100;
   game.remote.life = 100;
@@ -71,17 +73,17 @@ game.start = function () {
   game.remote.initRemote();
   game.remote.initLoops();
   game.remote.startGameLoop();
-
-  ui.updateLocalLife();
-  ui.updateRemoteLife();
-  ui.setupLocalInput();
 };
 
 game.exit = function () {
-  game.local.destroy();
-  game.local = null;
-  game.remote.destroy();
-  game.return = null;
+  if (game.local !== null) {
+    game.local.destroy();
+    game.local = null;
+  }
+  if (game.remote !== null) {
+    game.remote.destroy();
+    game.remote = null;
+  }
   game.map = null;
 };
 
