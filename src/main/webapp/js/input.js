@@ -90,14 +90,24 @@ var ui = {};
 
     var lobbyTitle = newLobbyTitle.value !== "" ? newLobbyTitle.value : newLobbyTitle.placeholder;
     var lobbyMap = parseInt(newLobbyMap.value);
-    
+
     createLobby(lobbyId, lobbyTitle, lobbyMap);
-    
+
     ui.toJoinWait();
   });
 
   lobbyListFetchBtn.addEventListener("click", function () {
     ui.fetchLobbys();
+  });
+
+  lobbyList.addEventListener("click", function (e) {
+    var btn = e.target;
+    if (btn.matches(".joinLobby")) {
+      var lobbyId = btn.dataset.id;
+      var map = btn.dataset.map;
+      joinLobby(lobbyId);
+      ui.toJoinWait();
+    }
   });
 
 // Join Menüs
