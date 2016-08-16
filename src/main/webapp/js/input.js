@@ -73,17 +73,19 @@ var ui = {};
 
   // ===== Lobby Join =====
   var lobbyId;
-
+  // Lobby erstellen öffnen
   newLobbyBtn.addEventListener("click", function () {
     lobbyId = Math.floor(Math.random() * 1000000000);
     newLobbyTitleEl.placeholder = "Lobby" + lobbyId;
     newLobbyDialogEl.showModal();
   });
 
+  // Lobby erstellen abbrechen
   closeNewLobbyBtn.addEventListener("click", function () {
     newLobbyDialogEl.close();
   });
 
+  // Lobby erstellen
   createNewLobbyBtn.addEventListener("click", function () {
     newLobbyDialogEl.close();
 
@@ -98,9 +100,8 @@ var ui = {};
     ui.toJoinWait();
   });
 
-  lobbyListFetchBtn.addEventListener("click", function () {
-    net.fetchLobbys();
-  });
+  // Liste updaten
+  lobbyListFetchBtn.addEventListener("click", net.fetchLobbys);
 
   lobbyListEl.addEventListener("click", function (e) {
     var btn = e.target;
@@ -160,6 +161,7 @@ var ui = {};
     gameWrapperEl.classList.remove("hidden");
   };
 
+  // Verbindung verloren Popup
   ui.showConLost = function () {
     conLostDialogEl.show();
   };
@@ -194,8 +196,8 @@ var ui = {};
     remoteLifeEl.textContent = game.remote.life;
     remoteLifeBar.style.width = game.remote.life / game.remote.fullLife * 100 + "%";
   };
-  // ===== Menüs =====
 
+  // ===== Tower Informationen =====
   ui.showSelectedInfo = function (tower) {
     if (tower === null) {
       towerStatsEl.classList.add("invisible");

@@ -31,8 +31,6 @@ game.remote = null;
 game.step = 50;
 
 // ParticleContainer für gute Performance (wird auf GPU berechnet)
-// Alle bekommen die gleichen Optionen, wegen PIXI Bug
-// https://github.com/pixijs/pixi.js/issues/1953
 var particleConOptions = {
   // scale wird bei den Mob-Lebensanzeigen gebraucht
   scale: true,
@@ -49,6 +47,7 @@ delete PIXI.WebGLRenderer.__plugins.accessibility;
 
 
 game.setup = function () {
+  game.setupPriceList();
   ui.toJoinMenu();
 };
 
@@ -183,7 +182,7 @@ Game.prototype.initLocal = function () {
   game.connection.pipeEvent(this, "removeMob");
 
   game.connection.pipeEvent(this, "gameHit");
-  
+
   game.connection.on("spawnMob", function (typeId) {
     this.emit("addMob", typeId);
   }, this);
@@ -347,4 +346,20 @@ game.texFromCache = function (img, x, y, w, h) {
   } else {
     return new PIXI.Texture(PIXI.loader.resources[img].texture.baseTexture);
   }
+};
+
+game.setupPriceList = function () {
+  towerTypes.forEach(function (type, i) {
+    var el = document.querySelector("button.tower[data-type='" + i + "']");
+    if(el != null) {
+      el.dataset.price = "$" + type.price;
+    }
+  });
+  
+  mobTypes.forEach(function (type, i) {
+    var el = document.querySelector("button.mob[data-type='" + i + "']");
+    if(el != null) {
+      el.dataset.price = "$" + type.price;
+    }
+  });
 };

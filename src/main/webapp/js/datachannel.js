@@ -1,7 +1,5 @@
 "use strict";
 
-var net = {};
-
 var RTCPeerConnection = window.webkitRTCPeerConnection || window.RTCPeerConnection;
 
 var configuration = {

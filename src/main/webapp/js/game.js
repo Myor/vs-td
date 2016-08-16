@@ -181,12 +181,3 @@ Game.prototype.removeCash = function (c) {
 Game.prototype.hasCash = function (price) {
   return this.cash >= price;
 };
-
-// ==== Game Wave ====
-//game.updateRound = function () {
-//    if (game.currentWaveID === -1) {
-//        gameRoundEl.textContent = "";
-//    } else {
-//        gameRoundEl.textContent = game.currentWaveID + "/" + (game.waves.length - 1);
-//    }
-//};
