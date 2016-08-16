@@ -14,6 +14,9 @@ var PeerConnection = function (id, title, map) {
   this.peerConnection = null;
   this.dataChannel = null;
 
+  this.isChannelOpen = false;
+  this.isICEDone = false;
+
   this._sendSignal = this._sendSignal.bind(this);
   this._onSignalMessage = this._onSignalMessage.bind(this);
   this._createPeerConnection = this._createPeerConnection.bind(this);
@@ -137,7 +140,8 @@ PeerConnection.prototype._iceCandidateCallback = function (event) {
       candidate: event.candidate
     });
   } else {
-    console.log("ICE Done");
+    this.isICEDone = true;
+    this._closeWebsocket();
   }
 };
 
@@ -154,24 +158,33 @@ PeerConnection.prototype._receiveChannelCallback = function (event) {
 };
 
 PeerConnection.prototype._onMessageCallback = function (event) {
-  
+
   var msg = JSON.parse(event.data);
 
   this.emit(msg.e, msg.a1, msg.a2, msg.a3);
 };
 
 PeerConnection.prototype._dataChannelOpen = function () {
-  this.ws.onmessage = null;
-  this.ws.onclose = null;
-  this.ws.close();
-  this.ws = null;
+  this.isChannelOpen = true;
+  this._closeWebsocket();
 
   this.emit("connect");
 };
 
+PeerConnection.prototype._closeWebsocket = function () {
+  if (this.isChannelOpen && this.isICEDone && this.ws !== null) {
+    this.ws.onmessage = null;
+    this.ws.onclose = null;
+    this.ws.close();
+    this.ws = null;
+  }
+};
+
 PeerConnection.prototype._forceCloseAll = function (err) {
-  if (err) console.error(err);
   this.close();
+  if (err) {
+    console.error(err);
+  }
 };
 
 PeerConnection.prototype.sendEvent = function (eventName, a1, a2, a3) {
@@ -216,5 +229,4 @@ PeerConnection.prototype.close = function () {
   }
 
   this.emit("close");
-
 };
