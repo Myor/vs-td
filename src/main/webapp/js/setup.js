@@ -167,33 +167,39 @@ Game.prototype.initGame = function () {
 
 Game.prototype.initLocal = function () {
 
-  this.on("spawnMob", function (id) {
-    this.emit("addMob", id);
-  }, this);
-
+  // Lokale Events
   this.on("killMob", this.killMob, this);
-  this.on("selectTower", ui.showSelectedInfo);
-
   this.on("gameHit", this.localHit, this);
   this.on("gameHit", ui.updateLocalLife);
-
+  // Auswahl zurücksetzen
+  this.on("selectTower", ui.showSelectedInfo);
   this.setSelectedTower(null);
 
   // Events zu Peer senden
-  // this.on("addTower", ...);
+  game.connection.pipeEvent(this, "addTower");
+  game.connection.pipeEvent(this, "removeTower");
+
+  game.connection.pipeEvent(this, "addMob");
+  game.connection.pipeEvent(this, "removeMob");
+
+  game.connection.pipeEvent(this, "gameHit");
+  
+  game.connection.on("spawnMob", function (typeId) {
+    this.emit("addMob", typeId);
+  }, this);
+
 };
 
 Game.prototype.initRemote = function () {
-  // Events von Peer empfangen und lokal emit
-  // Dieser Kram muss übers netzwerk laufen
-  game.local.on("addTower", this.addTowerAt, this);
-  game.local.on("removeTower", this.removeTower, this);
+  // Events von Peer empfangen
+  game.connection.on("addTower", this.addTowerAt, this);
+  game.connection.on("removeTower", this.removeTower, this);
 
-  game.local.on("addMob", this.addMob, this);
-  game.local.on("removeMob", this.removeMob, this);
+  game.connection.on("addMob", this.addMob, this);
+  game.connection.on("removeMob", this.removeMob, this);
 
-  game.local.on("gameHit", this.remoteHit, this);
-  game.local.on("gameHit", ui.updateRemoteLife);
+  game.connection.on("gameHit", this.remoteHit, this);
+  game.connection.on("gameHit", ui.updateRemoteLife);
 
   this.setSelectedTower(null);
 };

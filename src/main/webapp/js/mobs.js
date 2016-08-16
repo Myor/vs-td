@@ -1,23 +1,13 @@
 "use strict";
 
-
-// Nimmt ein Mob aus dem Pool und schiebt ihn in den Queue
-/*game.enqueMobs = function (typeId, num) {
- for (var i = 0; i < num; i++) {
- var mob = game.mobPool.getObj();
- mob.type = mobTypes[typeId];
- game.mobQueue.enqueue(mob);
- }
- };*/
-
 Game.prototype.spawnMob = function (typeId) {
   var type = mobTypes[typeId];
   // Preis zahlen
   if (!this.hasCash(type.price)) return;
   this.removeCash(type.price);
 
-  // TODO muss zu peer gesendet werden, nicht lokal
-  game.local.emit("spawnMob", typeId);
+  // Event zum anderen Spieler senden
+  game.connection.sendEvent("spawnMob", typeId);
 };
 // Mob aus Pool nehmen und zum Update loop hinzufügen
 Game.prototype.addMob = function (typeId) {

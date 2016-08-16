@@ -90,7 +90,7 @@ PeerConnection.prototype._sendOffer = function () {
   this.dataChannel.onopen = this._dataChannelOpen;
   this.dataChannel.onclose = this._forceCloseAll;
 
-  console.log("Created peer connection & data channel");
+  console.log("Created data channel");
   var con = this;
 
   this.peerConnection.createOffer().then(function (sdp) {
@@ -111,7 +111,6 @@ PeerConnection.prototype._handleOffer = function (msg) {
   this._createPeerConnection();
 
   this.peerConnection.ondatachannel = this._receiveChannelCallback;
-  console.log("Created peer connection");
   var con = this;
 
   this.peerConnection.setRemoteDescription(sdp).then(function () {
@@ -157,8 +156,10 @@ PeerConnection.prototype._receiveChannelCallback = function (event) {
 };
 
 PeerConnection.prototype._onMessageCallback = function (event) {
-  this.emit("message", event.data);
-  console.log("WebRTC Received", event.data);
+  
+  var msg = JSON.parse(event.data);
+
+  this.emit(msg.e, msg.a1, msg.a2, msg.a3);
 };
 
 PeerConnection.prototype._dataChannelOpen = function () {
@@ -175,8 +176,19 @@ PeerConnection.prototype._forceCloseAll = function (err) {
   this.close();
 };
 
-PeerConnection.prototype.sendData = function (data) {
-  this.dataChannel.send(data);
+PeerConnection.prototype.sendEvent = function (eventName, a1, a2, a3) {
+  this.dataChannel.send(JSON.stringify({
+    e: eventName,
+    a1: a1,
+    a2: a2,
+    a3: a3
+  }));
+};
+
+PeerConnection.prototype.pipeEvent = function (emiter, eventName) {
+  emiter.on(eventName, function (a1, a2, a3) {
+    this.sendEvent(eventName, a1, a2, a3);
+  }.bind(this));
 };
 
 PeerConnection.prototype.close = function () {
