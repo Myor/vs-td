@@ -140,6 +140,7 @@ PeerConnection.prototype._iceCandidateCallback = function (event) {
       candidate: event.candidate
     });
   } else {
+    console.log("ice done");
     this.isICEDone = true;
     this._closeWebsocket();
   }
@@ -165,6 +166,7 @@ PeerConnection.prototype._onMessageCallback = function (event) {
 };
 
 PeerConnection.prototype._dataChannelOpen = function () {
+  console.log("datachannel open");
   this.isChannelOpen = true;
   this._closeWebsocket();
 
@@ -175,8 +177,8 @@ PeerConnection.prototype._closeWebsocket = function () {
   if (this.isChannelOpen && this.isICEDone && this.ws !== null) {
     this.ws.onmessage = null;
     this.ws.onclose = null;
-    this.ws.close();
-    this.ws = null;
+//    this.ws.close();
+//    this.ws = null;
   }
 };
 
@@ -188,6 +190,7 @@ PeerConnection.prototype._forceCloseAll = function (err) {
 };
 
 PeerConnection.prototype.sendEvent = function (eventName, a1, a2, a3) {
+  if (this.dataChannel === null) return;
   this.dataChannel.send(JSON.stringify({
     e: eventName,
     a1: a1,

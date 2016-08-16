@@ -55,6 +55,7 @@ game.start = function () {
   game.setupTextures();
   game.setupMapTextures();
   game.map = game.maps[game.mapId];
+  game.isDone = false;
   // Lokales Spiel
   game.local = new Game(document.getElementById("localGameField"));
   game.local.fullLife = 100;

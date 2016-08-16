@@ -126,36 +126,12 @@ Game.prototype.updateAnimation = function (passedTime, accumulator) {
   }
 };
 
-
-
-//var colorMatrix = new PIXI.filters.ColorMatrixFilter();
-////colorMatrix.brightness(1.5);
-//colorMatrix.blackAndWhite();
-//
-//var blur = new PIXI.filters.BlurFilter();
-//blur.blur = 3;
-//
-//
-//game.lose = function () {
-//    if (game.isLost) return;
-//    game.isLost = true;
-//    slowFactor = 2;
-//    game.stage.filters = [colorMatrix, blur];
-//    ui.loseGame();
-//};
-//
-//game.win = function () {
-//    if (game.isLost) return;
-//    ui.winGame();
-//};
-
 // ==== Game Life ====
 Game.prototype.localHit = function () {
   this.life -= 1;
   if (this.life <= 0) {
     this.life = 0;
-    console.log("lose");
-//        game.lose();
+    game.lose();
   }
 };
 
@@ -163,7 +139,7 @@ Game.prototype.remoteHit = function () {
   this.life -= 1;
   if (this.life <= 0) {
     this.life = 0;
-    console.log("gewonnen");
+    game.win();
   }
 };
 
@@ -180,4 +156,25 @@ Game.prototype.removeCash = function (c) {
 
 Game.prototype.hasCash = function (price) {
   return this.cash >= price;
+};
+
+var colorMatrix = new PIXI.filters.ColorMatrixFilter();
+colorMatrix.brightness(1.5);
+colorMatrix.blackAndWhite();
+var blur = new PIXI.filters.BlurFilter();
+blur.blur = 4;
+
+game.win = function () {
+  if (game.isDone) return;
+  game.isDone = true;
+  ui.showWonDialog();
+  game.loseConnection();
+};
+
+game.lose = function () {
+  if (game.isDone) return;
+  game.isDone = true;
+  game.local.stage.filters = [colorMatrix, blur];
+  ui.showLoseDialog();
+  game.loseConnection();
 };

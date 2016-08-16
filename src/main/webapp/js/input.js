@@ -64,6 +64,12 @@ var ui = {};
   var closeNewLobbyBtn = id("closeNewLobby");
   var createNewLobbyBtn = id("createNewLobby");
 
+  var gameWonDialogEl = id("gameWonDialog");
+  var closeWonBtn = id("closeWon");
+
+  var gameLostDialogEl = id("gameLostDialog");
+  var closeLostBtn = id("closeLost");
+
   var conLostDialogEl = id("conLostDialog");
   var closeConLostBtn = id("closeConLost");
 
@@ -74,6 +80,8 @@ var ui = {};
   dialogPolyfill.registerDialog(helpDialogEl);
   dialogPolyfill.registerDialog(newLobbyDialogEl);
   dialogPolyfill.registerDialog(conLostDialogEl);
+  dialogPolyfill.registerDialog(gameWonDialogEl);
+  dialogPolyfill.registerDialog(gameLostDialogEl);
   dialogPolyfill.registerDialog(exitDialogEl);
 
   // ===== Lobby Join =====
@@ -99,10 +107,7 @@ var ui = {};
 
     game.mapId = lobbyMap;
     game.connection = new PeerConnection(lobbyId, lobbyTitle, lobbyMap);
-    game.connection.on("connect", startGame);
-    game.connection.on("close", closeGame);
-
-    ui.toJoinWait();
+    game.setupConnection();
   });
 
   // Liste updaten
@@ -115,49 +120,55 @@ var ui = {};
 
       game.mapId = Number(btn.dataset.map);
       game.connection = new PeerConnection(lobbyId);
-      game.connection.on("connect", startGame);
-      game.connection.on("close", closeGame);
-
-      ui.toJoinWait();
+      game.setupConnection();
     }
   });
 
-  function startGame() {
+  game.setupConnection = function () {
+    game.connection.on("connect", game.onConnection);
+    game.connection.on("close", game.onClose);
+    ui.toJoinWait();
+  };
+
+  game.onConnection = function () {
     ui.toGame();
     game.start();
     ui.updateLocalLife();
     ui.updateRemoteLife();
     ui.setupLocalInput();
-  }
+  };
 
-  function closeGame() {
-    if (exitDialogEl.open) exitDialogEl.close();
-    if (helpDialogEl.open) helpDialogEl.close();
-    ui.showConLost();
+  game.onClose = function () {
+    ui.showConLostDialog();
     ui.toJoinMenu();
     game.exit();
     game.connection = null;
-  }
+  };
 
-  function exitGame() {
-    if (exitDialogEl.open) exitDialogEl.close();
-    if (helpDialogEl.open) helpDialogEl.close();
-    game.connection.off("connect", startGame);
-    game.connection.off("close", closeGame);
+  game.loseConnection = function () {
+    game.connection.off("connect", game.onConnection);
+    game.connection.off("close", game.onClose);
+  };
+
+  game.closeConnection = function () {
+    game.loseConnection();
     game.connection.close();
     ui.toJoinMenu();
     game.exit();
     game.connection = null;
-  }
+  };
 
   // ===== Lobby Join Menüs =====
 
   ui.toJoinMenu = function () {
-    net.fetchLobbys();
+    if (exitDialogEl.open) exitDialogEl.close();
+    if (helpDialogEl.open) helpDialogEl.close();
     joinMenuEl.classList.remove("hidden");
     joinLobbyEl.classList.remove("hidden");
     joinWaitEl.classList.add("hidden");
     gameWrapperEl.classList.add("hidden");
+
+    net.fetchLobbys();
   };
 
   ui.toJoinWait = function () {
@@ -170,13 +181,39 @@ var ui = {};
     gameWrapperEl.classList.remove("hidden");
   };
 
-  // Verbindung verloren Popup
-  ui.showConLost = function () {
+  // ===== Verbindung verloren Popup =====
+  ui.showConLostDialog = function () {
     conLostDialogEl.show();
   };
 
   closeConLostBtn.addEventListener("click", function () {
     conLostDialogEl.close();
+  });
+
+  // ===== Spiel gewinnen Popup =====
+  ui.showWonDialog = function () {
+    gameWonDialogEl.showModal();
+  };
+
+  closeWonBtn.addEventListener("click", function () {
+    gameWonDialogEl.close();
+  });
+
+  gameWonDialogEl.addEventListener("close", function () {
+    game.closeConnection();
+  });
+
+  // ===== Spiel verloren Popup =====
+  ui.showLoseDialog = function () {
+    gameLostDialogEl.showModal();
+  };
+
+  closeLostBtn.addEventListener("click", function () {
+    gameLostDialogEl.close();
+  });
+
+  gameLostDialogEl.addEventListener("close", function () {
+    game.closeConnection();
   });
 
   // ===== Events dynamisch erstellte Elemente =====
@@ -244,7 +281,7 @@ var ui = {};
 
   exitBtn.addEventListener("click", function () {
     exitDialogEl.close();
-    exitGame();
+    game.closeConnection();
   });
 
   closeExitBtn.addEventListener("click", function () {
