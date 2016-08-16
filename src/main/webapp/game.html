@@ -12,7 +12,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
         <link rel="stylesheet" href="css/vendor/dialog-polyfill.css"/>
-        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/base.css">
+        <link rel="stylesheet" href="css/game.css">
+        <link rel="stylesheet" href="css/join.css">
 
         <script src="js/vendor/pixi.js"></script>
         <script src="js/vendor/pathfinding-browser.js"></script>
@@ -20,7 +22,7 @@
     </head>
     <body>
 
-        <div id="gameWrapper">
+        <div id="gameWrapper" class="hidden">
 
             <div id="localGame">
 
@@ -69,7 +71,7 @@
                 </div>
 
                 <div id="menu">
-                    <div id="cash">$ <span id="localCash">4242</span></div>
+                    <div id="cash">$<span id="localCash">4242</span></div>
                     <button id="helpGame">Hilfe</button>
                     <button id="exitGame">Quit</button>
                 </div>
@@ -125,6 +127,57 @@
             </p>
 
             <button id="closeHelp">Schließen</button>
+        </dialog>
+
+        <dialog class="fixed" id="newLobbyDialog">
+            <div>
+                <label for="newLobbyTitle">Lobby Titel</label>
+                <input id="newLobbyTitle" placeholder="lobbyname">
+            </div>
+            
+            <div>
+                <label for="newLobbyMap">Karte</label>
+                <select id="newLobbyMap">
+                    <option value="0" selected>Mondbasis</option>
+                    <option value="1" >Area 51</option>
+                </select>
+            </div>
+
+            <button id="closeNewLobby">Abbrechen</button>
+            <button id="createNewLobby">Erstellen</button>
+        </dialog>
+        
+        <dialog class="fixed" id="conLostDialog">
+            
+            <h1>Verbindung getrennt</h1>
+            <p>Die Verbindung zum anderen Spieler wurde Beendet</p>
+            
+            <button id="closeConLost">OK</button>
+        </dialog>
+        
+        <dialog class="fixed" id="gameWonDialog">
+            
+            <h1>Gewonnen!</h1>
+            <p>Du hast die Runde Gewonnen</p>
+            
+            <button id="closeWonGame">Weiter</button>
+        </dialog>
+        
+        <dialog class="fixed" id="gameLostDialog">
+            
+            <h1>Verloren!</h1>
+            <p>Du hast die Runde Verloren</p>
+            
+            <button id="closeLostGame">Weiter</button>
+        </dialog>
+        
+        <dialog class="fixed" id="exitDialog">
+            
+            <h1>Spiel verlassen</h1>
+            <p>Soll das Spiel beendet und die Verbindung<br> zum anderen Spieler beendet werden?</p>
+            
+            <button id="exitBtn">Ja</button>
+            <button id="closeExit">Abbrechen</button>
         </dialog>
 
 
