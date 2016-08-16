@@ -157,8 +157,6 @@ Game.prototype.localHit = function () {
     console.log("lose");
 //        game.lose();
   }
-  ui.updateLocalLife();
-  if (ui.canVibrate) navigator.vibrate(40);
 };
 
 Game.prototype.remoteHit = function () {
@@ -167,7 +165,6 @@ Game.prototype.remoteHit = function () {
     this.life = 0;
     console.log("gewonnen");
   }
-  ui.updateRemoteLife();
 };
 
 // ==== Game Cash ====

@@ -22,7 +22,34 @@
     </head>
     <body>
 
-        <div id="gameWrapper" class="hidden">
+        <template id="lobbyTmpl">
+            <div class="lobby">
+                <div class="lobbyInfo">
+                    <div class="lobbyTitle"></div>
+                </div>
+                <button class="joinLobby">Join</button>
+            </div>
+        </template>
+
+        <div id="joinMenu">
+
+            <div id="joinLobby">
+
+                <button id="newLobby">Neue Lobby...</button>
+
+                <h1>Lobby Beitreten <button id="lobbyListFetch">Aktualisieren</button></h1>
+
+                <div id="lobbyList"></div>
+
+            </div>
+
+            <div id="joinWait">
+                <p>Warte auf Antwort...</p>
+            </div>
+
+        </div>
+
+        <div id="gameWrapper">
 
             <div id="localGame">
 
@@ -134,7 +161,7 @@
                 <label for="newLobbyTitle">Lobby Titel</label>
                 <input id="newLobbyTitle" placeholder="lobbyname">
             </div>
-            
+
             <div>
                 <label for="newLobbyMap">Karte</label>
                 <select id="newLobbyMap">
@@ -146,36 +173,36 @@
             <button id="closeNewLobby">Abbrechen</button>
             <button id="createNewLobby">Erstellen</button>
         </dialog>
-        
+
         <dialog class="fixed" id="conLostDialog">
-            
+
             <h1>Verbindung getrennt</h1>
             <p>Die Verbindung zum anderen Spieler wurde Beendet</p>
-            
+
             <button id="closeConLost">OK</button>
         </dialog>
-        
+
         <dialog class="fixed" id="gameWonDialog">
-            
+
             <h1>Gewonnen!</h1>
             <p>Du hast die Runde Gewonnen</p>
-            
+
             <button id="closeWonGame">Weiter</button>
         </dialog>
-        
+
         <dialog class="fixed" id="gameLostDialog">
-            
+
             <h1>Verloren!</h1>
             <p>Du hast die Runde Verloren</p>
-            
+
             <button id="closeLostGame">Weiter</button>
         </dialog>
-        
+
         <dialog class="fixed" id="exitDialog">
-            
+
             <h1>Spiel verlassen</h1>
             <p>Soll das Spiel beendet und die Verbindung<br> zum anderen Spieler beendet werden?</p>
-            
+
             <button id="exitBtn">Ja</button>
             <button id="closeExit">Abbrechen</button>
         </dialog>

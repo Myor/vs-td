@@ -1,8 +1,6 @@
 "use strict";
 
-document.addEventListener("DOMContentLoaded", loadResources);
-
-function loadResources() {
+document.addEventListener("DOMContentLoaded", function () {
   PIXI.loader
           .add("mobs", "assets/mobSheet32.png")
           .add("mobBar", "assets/mobBar.png")
@@ -12,7 +10,7 @@ function loadResources() {
           .add("map1ground", "assets/map1ground32.png")
           .add("map2ground", "assets/map2ground32.png")
           .load(game.setup);
-}
+});
 
 // Objekt für Statische Daten / Funktionen
 var game = {};
@@ -176,6 +174,7 @@ Game.prototype.initLocal = function () {
   this.on("selectTower", ui.showSelectedInfo);
 
   this.on("gameHit", this.localHit, this);
+  this.on("gameHit", ui.updateLocalLife);
 
   this.setSelectedTower(null);
 
@@ -193,6 +192,7 @@ Game.prototype.initRemote = function () {
   game.local.on("removeMob", this.removeMob, this);
 
   game.local.on("gameHit", this.remoteHit, this);
+  game.local.on("gameHit", ui.updateRemoteLife);
 
   this.setSelectedTower(null);
 };

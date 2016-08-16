@@ -3,3 +3,49 @@
     display: block;
     font-size: 2.5em;
 }
+
+#joinMenu {
+    max-width: 500px;
+    margin: 0 auto;
+    background-image: url("../assets/header.png");
+    background-repeat: no-repeat;
+    background-position: center top;
+}
+
+#joinLobby,
+#joinWait {
+    padding-top: 300px;
+}
+
+#newLobby {
+    width: 100%;
+    display: block;
+    font-size: 2em;
+    text-align: left;
+    margin: 30px 0px;
+    padding: 10px;
+}
+
+#lobbyListFetch {
+    font-size: 0.5em;
+}
+
+.lobby {
+    background-color: #d7d7d7;
+    margin-top: 3px;
+    display: flex;
+    padding: 10px;
+}
+
+.lobbyInfo {
+    flex-grow: 1;
+}
+
+.lobbyTitle {
+    font-size: 1.5em;
+    margin: 5px 0;
+}
+
+.joinLobby {
+    width: 100px;
+}

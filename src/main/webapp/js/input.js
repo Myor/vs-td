@@ -4,6 +4,19 @@ function id(selector) {
   return document.getElementById(selector);
 }
 
+// Join Menu
+var joinMenu = id("joinMenu");
+var joinLobby = id("joinLobby");
+var newLobbyBtn = id("newLobby");
+var lobbyListFetchBtn = id("lobbyListFetch");
+var lobbyList = id("lobbyList");
+var joinWait = id("joinWait");
+
+var lobbyTmpl = id("lobbyTmpl");
+
+// Game
+var gameWrapper = id("gameWrapper");
+
 // Stats
 var localLifeEl = id("localLife");
 var localCashEl = id("localCash");
@@ -14,7 +27,6 @@ var remoteLifeBar = document.querySelector("#remoteStats .gameLifeBar");
 
 // Menu
 var cancelPlaceBtn = id("cancelPlace");
-//var pauseBtn = id("pauseGame");
 var helpBtn = id("helpGame");
 var exitBtn = id("exitGame");
 
@@ -40,13 +52,91 @@ var tSellPrice = towerStats.querySelector(".tSellPrice");
 // Mobs
 var mobList = id("mobs");
 
+// Dialogs
 var helpDialog = id("helpDialog");
 var helpCloseBtn = id("closeHelp");
 
+var newLobbyDialog = id("newLobbyDialog");
+var newLobbyTitle = id("newLobbyTitle");
+var newLobbyMap = id("newLobbyMap");
+var closeNewLobby = id("closeNewLobby");
+var createNewLobby = id("createNewLobby");
+
+var conLostDialog = id("conLostDialog");
+var closeConLost = id("closeConLost");
+
 dialogPolyfill.registerDialog(helpDialog);
+dialogPolyfill.registerDialog(newLobbyDialog);
+dialogPolyfill.registerDialog(conLostDialog);
+
+var lobbyId;
+
+newLobbyBtn.addEventListener("click", function () {
+  lobbyId = Math.floor(Math.random() * 1000000000);
+  newLobbyTitle.placeholder = "Lobby" + lobbyId;
+  newLobbyDialog.showModal();
+});
+
+closeNewLobby.addEventListener("click", function () {
+  newLobbyDialog.close();
+});
+
+createNewLobby.addEventListener("click", function () {
+  newLobbyDialog.close();
+
+  var lobbyTitle = newLobbyTitle.value !== "" ? newLobbyTitle.value : newLobbyTitle.placeholder;
+  var lobbyMap = Number(newLobbyMap.value);
+
+  console.log(lobbyTitle, lobbyMap);
+
+});
+
+lobbyListFetchBtn.addEventListener("click", function () {
+  ui.fetchLobbys();
+});
+
 
 var ui = {};
-ui.canVibrate = window.navigator.vibrate !== undefined;
+
+// Join Menüs
+ui.toJoinMenu = function () {
+  ui.fetchLobbys();
+  joinMenu.classList.remove("hidden");
+  joinLobby.classList.remove("hidden");
+  joinWait.classList.add("hidden");
+  gameWrapper.classList.add("hidden");
+};
+
+ui.toJoinWait = function () {
+  joinLobby.classList.add("hidden");
+  joinWait.classList.remove("hidden");
+};
+
+ui.toGame = function () {
+  joinMenu.classList.add("hidden");
+  gameWrapper.classList.remove("hidden");
+};
+
+ui.fetchLobbys = function () {
+  fetch("lobbys").then(function (response) {
+    return response.json();
+  }).then(function (json) {
+
+    if (json.length === 0) {
+      lobbyList.textContent = "Keine Lobbys gefunden.";
+    } else {
+      lobbyList.innerHTML = "";
+      json.forEach(function (lobby) {
+        lobbyTmpl.content.querySelector(".lobbyTitle").textContent = lobby.title;
+        lobbyTmpl.content.querySelector(".joinLobby").dataset.id = lobby.id;
+        lobbyList.appendChild(document.importNode(lobbyTmpl.content, true));
+      });
+    }
+
+  }).catch(function (err) {
+    console.error(err);
+  });
+};
 
 // ===== Events dynamisch erstellte Elemente =====
 ui.setupLocalInput = function () {
@@ -85,17 +175,6 @@ ui.showSelectedInfo = function (tower) {
   }
 };
 
-//ui.pauseGame = function () {
-//  if (game.isPaused) return;
-//  game.pauseLoop();
-//  pauseButton.classList.add("paused");
-//};
-//ui.resumeGame = function () {
-//  if (!game.isPaused) return;
-//  game.resumeLoop();
-//  pauseButton.classList.remove("paused");
-//};
-
 var fillInfoSelected = function (tower) {
   var type = tower.type;
   // Daten
@@ -117,14 +196,6 @@ var fillInfoSelected = function (tower) {
 };
 
 // ===== Button Event Handler =====
-
-//function pauseHandler() {
-//  if (game.isPaused === false) {
-//    ui.pauseGame();
-//  } else {
-//    ui.resumeGame();
-//  }
-//}
 
 exitBtn.addEventListener("click", function () {
   game.exit();
