@@ -32,7 +32,6 @@ Game.prototype.gameloop = function (newTime) {
   var frameTime = newTime - this.lastTime;
   if (frameTime > 1000) {
     // Spikes abfangen
-    console.log("clamp");
     frameTime = 1000;
   }
   this.lastTime = newTime;
@@ -80,8 +79,6 @@ Game.prototype.simulate = function (dt) {
   var i, j, tower, mob, dist, collArray;
   var towers = this.towers.getArray();
   var mobs = this.mobs.getArray();
-
-//    game.updateWave();
 
   for (i = 0; i < towers.length; i++) {
     tower = towers[i];
@@ -158,15 +155,10 @@ Game.prototype.hasCash = function (price) {
   return this.cash >= price;
 };
 
-var colorMatrix = new PIXI.filters.ColorMatrixFilter();
-colorMatrix.brightness(1.5);
-colorMatrix.blackAndWhite();
-var blur = new PIXI.filters.BlurFilter();
-blur.blur = 4;
-
 game.win = function () {
   if (game.isDone) return;
   game.isDone = true;
+
   ui.showWonDialog();
   game.loseConnection();
 };
@@ -174,7 +166,14 @@ game.win = function () {
 game.lose = function () {
   if (game.isDone) return;
   game.isDone = true;
+  // Filter
+  var colorMatrix = new PIXI.filters.ColorMatrixFilter();
+  colorMatrix.brightness(1.5);
+  colorMatrix.blackAndWhite();
+  var blur = new PIXI.filters.BlurFilter();
+  blur.blur = 4;
   game.local.stage.filters = [colorMatrix, blur];
+
   ui.showLoseDialog();
   game.loseConnection();
 };

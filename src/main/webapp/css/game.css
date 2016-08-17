@@ -16,6 +16,7 @@
 #localGame,
 #remoteGame {
     width: 384px;
+    flex-shrink: 0;
 }
 
 #localGameField,
@@ -136,6 +137,7 @@
     width: 140px;
     overflow: hidden;
     padding-top: 30px;
+    flex-shrink: 0;
 }
 
 #towerStats {
