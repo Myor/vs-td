@@ -3,6 +3,7 @@
 #gameWrapper {
     display: flex;
     justify-content: center;
+    min-width: 908px;
 }
 
 #gameWrapper h1 {
