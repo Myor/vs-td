@@ -7,7 +7,7 @@ import javax.websocket.Session;
 
 /**
  * Klasse für eine Lobby, in der zwei Spieler beitreten können
- * Es werden je zwei WebSocket Session gespeichert, um Signale auszutauschen
+ * Es werden je zwei WebSocket Sessions gespeichert, um Signale auszutauschen
  */
 public class Lobby {
 
@@ -58,7 +58,7 @@ public class Lobby {
 
     /**
      * Beim entfernen einer Session werden beide Verbindungen beendet
-     * So kann die sofort gelöscht werden
+     * So kann die Lobby sofort gelöscht werden
      *
      * @param session Session, welche die Lobby verlässt
      * @return  true, wenn die Session in der Lobby war, sonst false
@@ -96,7 +96,7 @@ public class Lobby {
      * Baut ein Objekt, dass Infos über die Lobby enthällt
      *
      * @param id ID der Lobby
-     * @return JsonObjekt mit all
+     * @return JsonObjekt mit allen Infos
      */
     public JsonObject buildLobbyDescription(String id) {
         return Json.createObjectBuilder()

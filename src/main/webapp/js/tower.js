@@ -1,6 +1,6 @@
 "use strict";
 
-// Setzt Tower, wenn möglich
+// Kauft Tower, wenn möglich
 Game.prototype.buyTowerAt = function (typeID, cx, cy) {
   // Tower vorhanden bzw. start & ziel
   if (this.collGrid.islockedAt(cx, cy)
@@ -48,7 +48,6 @@ Game.prototype.addTowerAt = function (typeID, cx, cy) {
   this.calculateBuffs();
 
   this.collGrid.addTower(tower);
-
   this.towers.add(tower);
 };
 
@@ -63,7 +62,6 @@ Game.prototype.getTowerAt = function (cx, cy) {
 // Verkauft Tower
 Game.prototype.sellTower = function (tower) {
   this.addCash(tower.type.sellPrice);
-
   this.emit("removeTower", this.towers.getIndex(tower));
 };
 
@@ -82,23 +80,24 @@ Game.prototype.removeTower = function (index) {
     this.buffColGrid.deleteTower(tower);
     this.calculateBuffs();
   }
-  this.collGrid.deleteTower(tower);
 
+  this.collGrid.deleteTower(tower);
   this.towers.remove(tower);
   tower.destroy();
 };
 
+// Tower verbesern
 Game.prototype.upgradeTower = function (tower) {
   var nextType = towerTypes[tower.type.next];
 
   if (!this.hasCash(nextType.price)) return;
   this.removeCash(nextType.price);
-
+  // Löschen + neu setzen
   this.emit("removeTower", this.towers.getIndex(tower));
   this.emit("addTower", tower.type.next, tower.cx, tower.cy);
 };
 
-// Bonus Tower neu gerechnen
+// Bonus Tower neu berechnen
 Game.prototype.calculateBuffs = function () {
   var towers = this.towers.getArray();
   var tower;
@@ -184,22 +183,4 @@ var aimFuncs = {};
 aimFuncs.first = function (mob, dist) {
   return this.focus === null || mob.covered > this.focus.covered;
 };
-aimFuncs.last = function (mob, dist) {
-  return this.focus === null || mob.covered < this.focus.covered;
-};
-aimFuncs.strong = function (mob, dist) {
-  return this.focus === null || mob.life > this.focus.life;
-};
-aimFuncs.weak = function (mob, dist) {
-  return this.focus === null || mob.life < this.focus.life;
-};
-aimFuncs.close = function (mob, dist) {
-  return this.focus === null || dist < this.dist;
-};
-// Namen zur Zuordnung im Menü
-aimFuncs.first.id = "first";
-aimFuncs.last.id = "last";
-aimFuncs.strong.id = "strong";
-aimFuncs.weak.id = "weak";
-aimFuncs.close.id = "close";
 

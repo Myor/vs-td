@@ -19,16 +19,15 @@ var ui = {};
   // Game
   var gameWrapperEl = id("gameWrapper");
 
-  // Stats
+  // Local Stats
   var localLifeEl = id("localLife");
   var localCashEl = id("localCash");
   var localLifeBar = document.querySelector("#localStats .gameLifeBar");
-  // Remote
+  // Remote Stats
   var remoteLifeEl = id("remoteLife");
   var remoteLifeBar = document.querySelector("#remoteStats .gameLifeBar");
 
   // Menu
-  var cancelPlaceBtn = id("cancelPlace");
   var helpBtn = id("helpGame");
   var exitGameBtn = id("exitGame");
 
@@ -52,7 +51,7 @@ var ui = {};
   var tSellPrice = towerStatsEl.querySelector(".tSellPrice");
 
   // Mobs
-  var mobList = id("mobs");
+  var mobListEl = id("mobs");
 
   // Dialogs
   var helpDialogEl = id("helpDialog");
@@ -113,6 +112,7 @@ var ui = {};
   // Liste updaten
   lobbyListFetchBtn.addEventListener("click", net.fetchLobbys);
 
+  // Lobby beitreten
   lobbyListEl.addEventListener("click", function (e) {
     var btn = e.target;
     if (btn.matches(".joinLobby")) {
@@ -142,6 +142,7 @@ var ui = {};
     ui.showConLostDialog();
     ui.toJoinMenu();
     game.exit();
+    game.loseConnection();
     game.connection = null;
   };
 
@@ -151,10 +152,10 @@ var ui = {};
   };
 
   game.closeConnection = function () {
-    game.loseConnection();
-    game.connection.close();
     ui.toJoinMenu();
     game.exit();
+    game.loseConnection();
+    game.connection.close();
     game.connection = null;
   };
 
@@ -216,7 +217,7 @@ var ui = {};
     game.closeConnection();
   });
 
-  // ===== Events dynamisch erstellte Elemente =====
+  // Events für dynamisch erstellte Elemente
   ui.setupLocalInput = function () {
     // Kein Kontextmenü
     game.local.canvasEl.addEventListener("contextmenu", function (e) {
@@ -225,10 +226,9 @@ var ui = {};
     // Klick auf Spielfeld
     game.local.canvasEl.addEventListener("click", clickHandler);
     game.local.canvasEl.addEventListener("touchend", touchHandler);
-
-    //  document.addEventListener("visibilitychange", visibleHandler);
   };
 
+  // Anzeigen updaten
   ui.updateCash = function () {
     localCashEl.textContent = game.local.cash;
   };
@@ -335,12 +335,7 @@ var ui = {};
 
   });
 
-  function towerCancelHandler() {
-    endPlace();
-  }
-
   function startPlace() {
-    //  cancelPlaceBtn.disabled = false;
     addPlaceListeners();
     game.local.setSelectedTower(null);
     selectBlocked = true;
@@ -348,7 +343,6 @@ var ui = {};
   }
 
   function endPlace() {
-    //  cancelPlaceBtn.disabled = true;
     removePlaceListeners();
     game.local.hideSelection();
     selectBlocked = false;
@@ -418,7 +412,7 @@ var ui = {};
     game.local.setSelectedTower(null);
 
   });
-
+  // Tower verbessern
   tNextBtn.addEventListener("click", function () {
     var tower = game.local.getSelectedTower();
     if (tower === null) return;
@@ -426,15 +420,13 @@ var ui = {};
     game.local.setSelectedTower(game.local.getTowerAt(tower.cx, tower.cy));
   });
 
-  // ====== Mob Spawn Handler ======
-
-  mobList.addEventListener("click", function (e) {
+  // ====== Mob Spawnen  ======
+  mobListEl.addEventListener("click", function (e) {
     // Klicks auf Mob-Button
     if (e.target.matches("button.mob")) {
       var typeId = Number(e.target.dataset.type);
       game.local.spawnMob(typeId);
     }
   });
-
 
 }());

@@ -6,7 +6,7 @@ var PFfinder = new PF.AStarFinder({
   heuristic: PF.Heuristic.euclidean
 });
 
-
+// Pfad von Start zum Ziel der Map
 Game.prototype.findPath = function () {
   return PFfinder.findPath(
           game.map.start.x,

@@ -17,7 +17,6 @@ Game.prototype.initLoops = function () {
 
   this.initGameloop = this.initGameloop.bind(this);
   this.gameloop = this.gameloop.bind(this);
-  this.renderloop = this.renderloop.bind(this);
 };
 // Erster Frame, um initiale Zeit zu setzen
 Game.prototype.initGameloop = function (newTime) {
@@ -49,11 +48,6 @@ Game.prototype.gameloop = function (newTime) {
   this.renderer.render(this.stage);
   this.frameId = requestAnimationFrame(this.gameloop);
 };
-// Loop nur zum rendern der Stage
-Game.prototype.renderloop = function () {
-  this.renderer.render(this.stage);
-  this.frameId = requestAnimationFrame(this.renderloop);
-};
 
 Game.prototype.startGameLoop = function () {
   requestAnimationFrame(this.initGameloop);
@@ -61,17 +55,6 @@ Game.prototype.startGameLoop = function () {
 
 Game.prototype.stopGameLoop = function () {
   cancelAnimationFrame(this.frameId);
-};
-
-Game.prototype.pauseLoop = function () {
-  this.isPaused = true;
-  cancelAnimationFrame(this.frameId);
-  this.frameId = requestAnimationFrame(this.renderloop);
-};
-Game.prototype.resumeLoop = function () {
-  this.isPaused = false;
-  cancelAnimationFrame(this.frameId);
-  this.startGameLoop();
 };
 
 // Physik update / Kollisionsabfragen
@@ -155,6 +138,7 @@ Game.prototype.hasCash = function (price) {
   return this.cash >= price;
 };
 
+// Spiel gewinnen / verlieren
 game.win = function () {
   if (game.isDone) return;
   game.isDone = true;

@@ -2,10 +2,10 @@
 
 document.addEventListener("DOMContentLoaded", function () {
 
-  // Browser muss fetch und WebRTC haben
+  // Browser muss fetch und WebRTC unterstüzen
   if (!window.fetch || !window.RTCPeerConnection) {
     var h1 = document.createElement("h1");
-    h1.textContent = "Dieser Browser ist nicht unterstüzt!";
+    h1.textContent = "Dieser Browser ist wird unterstüzt!";
     document.body.appendChild(h1);
     return;
   }
@@ -41,25 +41,24 @@ game.step = 50;
 
 // ParticleContainer für gute Performance (wird auf GPU berechnet)
 var particleConOptions = {
-  // scale wird bei den Mob-Lebensanzeigen gebraucht
   scale: true,
   position: true,
   rotation: true,
-  // uvs, damit Texturen getauscht werden können
   uvs: true,
   alpha: false
 };
 
-// Ungenutzte Plugins
+// Ungenutzte Plugins entfernen
 delete PIXI.WebGLRenderer.__plugins.interaction;
 delete PIXI.WebGLRenderer.__plugins.accessibility;
 
-
+// Startbildschirm anzeigen
 game.setup = function () {
   game.setupPriceList();
   ui.toJoinMenu();
 };
 
+// Spielfleder starten
 game.start = function () {
   game.setupTextures();
   game.setupMapTextures();
@@ -69,7 +68,7 @@ game.start = function () {
   game.local = new Game(document.getElementById("localGameField"));
   game.local.fullLife = 100;
   game.local.life = 100;
-  game.local.addCash(9999);
+  game.local.addCash(500);
   game.local.initGame();
   game.local.initLocal();
   game.local.initLoops();
@@ -84,6 +83,7 @@ game.start = function () {
   game.remote.startGameLoop();
 };
 
+// Spielfelder löschen
 game.exit = function () {
   if (game.local !== null) {
     game.local.destroy();
@@ -111,7 +111,7 @@ Game.prototype.initGame = function () {
   this.renderer = new PIXI.WebGLRenderer(game.resX, game.resY, {
     antialias: true
   });
-  // Canvas in DOM rein
+  // Canvas Element zu DOM hinzufügen
   this.canvasEl = this.renderer.view;
   this.containerEl.appendChild(this.canvasEl);
 
@@ -139,6 +139,7 @@ Game.prototype.initGame = function () {
   this.mobsCon = new PIXI.ParticleContainer(50000, particleConOptions, 10000);
   this.mobsBarCon = new PIXI.ParticleContainer(50000, particleConOptions, 10000);
 
+  // Datenstrukturen für Objekte
   this.towers = new FastSet();
   this.mobs = new FastSet();
   this.mobPool = new Pool(Mob, this, 10);
@@ -167,6 +168,7 @@ Game.prototype.initGame = function () {
   this.path = this.findPath();
   this.drawPath();
 
+  // Eventhandler für alle Spielfalser
   this.on("addTower", this.addTowerAt, this);
   this.on("removeTower", this.removeTower, this);
 
@@ -175,13 +177,12 @@ Game.prototype.initGame = function () {
 };
 
 Game.prototype.initLocal = function () {
-
   // Lokale Events
   this.on("killMob", this.killMob, this);
   this.on("gameHit", this.localHit, this);
   this.on("gameHit", ui.updateLocalLife);
-  // Auswahl zurücksetzen
   this.on("selectTower", ui.showSelectedInfo);
+  // Auswahl zurücksetzen
   this.setSelectedTower(null);
 
   // Events zu Peer senden
@@ -192,7 +193,7 @@ Game.prototype.initLocal = function () {
   game.connection.pipeEvent(this, "removeMob");
 
   game.connection.pipeEvent(this, "gameHit");
-
+  // Mob lokal hinzufügen
   game.connection.on("spawnMob", function (typeId) {
     this.emit("addMob", typeId);
   }, this);
@@ -229,7 +230,7 @@ Game.prototype.initMap = function () {
   var map = game.map;
   var mapCon = this.mapCon;
 
-  // Background
+  // Hintergrund malen
   var layout = map.groundLayout;
   for (var y = 0; y < game.cellsY; y++) {
     for (var x = 0; x < game.cellsX; x++) {
@@ -240,7 +241,6 @@ Game.prototype.initMap = function () {
       mapCon.addChild(spr);
     }
   }
-
   // Map ändert sich nicht, kann gecached werden
   mapCon.cacheAsBitmap = true;
 
@@ -254,6 +254,7 @@ Game.prototype.initMap = function () {
   }
 };
 
+// Texturen aus Grafiken wählen
 game.setupTextures = function () {
   var texFromCache = game.texFromCache;
 
@@ -311,7 +312,6 @@ game.setupTextures = function () {
 
   // Ufo
   towerTypes[9].tex = texFromCache("towers", 377, 0, 32, 32);
-//  towerTypes[9].tex2 = texFromCache("towers", 377, 0, 32, 32);
   towerTypes[9].shotTex = [
     texFromCache("shots", 0, 32, 128, 32),
     texFromCache("shots", 0, 64, 128, 32),
@@ -319,7 +319,6 @@ game.setupTextures = function () {
   ];
   // Ufo Level 2
   towerTypes[10].tex = towerTypes[9].tex;
-//  towerTypes[10].tex2 = towerTypes[9].tex2;
   towerTypes[10].shotTex = [
     texFromCache("shots", 0, 128, 128, 32),
     texFromCache("shots", 0, 160, 128, 32),
@@ -337,13 +336,7 @@ game.setupTextures = function () {
   ];
   // Aura Level 2
   towerTypes[12].tex = towerTypes[11].tex;
-  towerTypes[12].texAnim = [
-    texFromCache("towers", 170, 0, 32, 32),
-    texFromCache("towers", 204, 0, 32, 32),
-    texFromCache("towers", 238, 0, 32, 32),
-    texFromCache("towers", 272, 0, 32, 32),
-    texFromCache("towers", 306, 0, 32, 32)
-  ];
+  towerTypes[12].texAnim = towerTypes[11].texAnim;
 
 };
 
@@ -358,6 +351,7 @@ game.texFromCache = function (img, x, y, w, h) {
   }
 };
 
+// Preise eintragen
 game.setupPriceList = function () {
   towerTypes.forEach(function (type, i) {
     var el = document.querySelector("button.tower[data-type='" + i + "']");

@@ -6,9 +6,10 @@ Game.prototype.spawnMob = function (typeId) {
   if (!this.hasCash(type.price)) return;
   this.removeCash(type.price);
 
-  // Event zum anderen Spieler senden
+  // Event zum anderen Peer senden
   game.connection.sendEvent("spawnMob", typeId);
 };
+
 // Mob aus Pool nehmen und zum Update loop hinzufügen
 Game.prototype.addMob = function (typeId) {
   var mob = this.mobPool.getObj();
@@ -19,9 +20,9 @@ Game.prototype.addMob = function (typeId) {
 
 // Killed Mobs entfernen
 Game.prototype.cleanMobs = function () {
-  // Rückwärts, um keine Elemente zu überspringen
   var mobs = this.mobs.getArray();
   var i, mob;
+  // Rückwärts, um keine Elemente zu überspringen
   for (i = mobs.length - 1; i >= 0; i--) {
     mob = mobs[i];
     // Mob töten, wenn im Ziel
@@ -37,6 +38,7 @@ Game.prototype.cleanMobs = function () {
 // Mob als tot kennzeichnen
 Game.prototype.killMob = function (mob, by) {
   if (by != null) {
+    // Von Turm getötet
     by.killCount++;
     this.addCash(mob.type.cash);
   }
@@ -144,6 +146,7 @@ Mob.prototype.update = function (passedTime, accumulator) {
   this.barSpr.scale.x = this.life / this.type.life;
 };
 
+// Mob bekommt schaden
 Mob.prototype.hit = function (power, by) {
   if (this.isKilled()) return;
   this.life -= power;

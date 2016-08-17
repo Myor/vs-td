@@ -11,11 +11,213 @@
 
         <!--<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">-->
 
+        <link rel="stylesheet" href="css/vendor/dialog-polyfill.css"/>
+        <link rel="stylesheet" href="css/base.css">
+        <link rel="stylesheet" href="css/game.css">
+        <link rel="stylesheet" href="css/join.css">
+
+        <script src="js/vendor/pixi.js"></script>
+        <script src="js/vendor/pathfinding-browser.js"></script>
+        <script src="js/vendor/dialog-polyfill.js"></script>
     </head>
     <body>
-        
-        <a href="game.html">Start</a>
 
-        
+        <template id="lobbyTmpl">
+            <div class="lobby">
+                <div class="lobbyInfo">
+                    <div class="lobbyTitle"></div>
+                </div>
+                <button class="joinLobby">Join</button>
+            </div>
+        </template>
+
+        <div id="joinMenu" class="hidden">
+
+            <div id="joinLobby">
+
+                <button id="newLobby">Neue Lobby...</button>
+
+                <h1>Lobby Beitreten <button id="lobbyListFetch">Aktualisieren</button></h1>
+
+                <div id="lobbyList"></div>
+
+            </div>
+
+            <div id="joinWait">
+                <p>Warte auf Spieler...</p>
+            </div>
+
+        </div>
+
+        <div id="gameWrapper" class="hidden">
+
+            <div id="localGame">
+
+                <div id="localStats" class="gameStats">
+                    <div class="gameLifeBar"></div>
+                    <div id="localLife" class="gameLife">42</div>
+                </div>
+
+                <div id="localGameField"></div>
+
+                <div id="towerMenu">
+                    <div id="towers">
+                        <button class="tower" data-type="0" data-price="$999">0</button>
+                        <button class="tower" data-type="1" data-price="$999">1</button>
+                        <button class="tower" data-type="3" data-price="$999">3</button>
+                        <button class="tower" data-type="5" data-price="$999">5</button>
+                        <button class="tower" data-type="7" data-price="$999">7</button>
+                        <button class="tower" data-type="9" data-price="$999">9</button>
+                        <button class="tower" data-type="11" data-price="$999">11</button>
+                    </div>
+                    <h1>Türme</h1>
+                </div>
+
+            </div>
+
+            <div id="spacer">
+
+                <div id="towerStats">
+                    <h1>Turm Info</h1>
+                    <div class="tName">name</div>
+                    <div class="tDesc">desc</div>
+                    <div>Kills: <span class="tKillCount"></span></div>
+                    <div>Stärke: <span class="tPower"></span></div>
+                    <div>Nachladen: <span class="tFreq"></span></div>
+                    <div>Radius: <span class="tRadius"></span></div>
+                    <div class="tUpgrade">
+                        <div class="tCurrentDiv">Level <span class="tCurrentLvl"></span></div>
+                        <button class="tNextBtn">
+                            Level <span class="tNextLvl"></span><br>
+                            <span class="tNextPrice"></span>$
+                        </button>
+                    </div>
+
+                    <button class="tSellBtn">Verkaufen<br>(+<span class="tSellPrice"></span>$)</button> 
+                </div>
+
+                <div id="menu">
+                    <div id="cash">$<span id="localCash">4242</span></div>
+                    <button id="helpGame">Hilfe</button>
+                    <button id="exitGame">Exit</button>
+                </div>
+
+            </div>
+
+            <div id="remoteGame">
+
+                <div id="remoteStats" class="gameStats">
+                    <div class="gameLifeBar"></div>
+                    <div id="remoteLife" class="gameLife">42</div>
+                </div>
+
+                <div id="remoteGameField"></div>
+
+                <div id="mobMenu">
+                    <div id="mobs">
+                        <button class="mob" data-type="0" data-price="$999">0</button>
+                        <button class="mob" data-type="1" data-price="$999">1</button>
+                        <button class="mob" data-type="2" data-price="$999">2</button>
+                        <button class="mob" data-type="3" data-price="$999">3</button>
+                        <button class="mob" data-type="4" data-price="$999">4</button>
+                        <button class="mob" data-type="5" data-price="$999">5</button>
+                        <button class="mob" data-type="6" data-price="$999">6</button>
+                        <button class="mob" data-type="7" data-price="$999">7</button>
+                        <button class="mob" data-type="8" data-price="$999">8</button>
+                        <button class="mob" data-type="9" data-price="$999">9</button>
+                        <button class="mob" data-type="10" data-price="$999">10</button>
+                        <button class="mob" data-type="11" data-price="$999">11</button>
+                    </div>
+                    <h1>Angreifer</h1>
+                </div>
+
+            </div>
+
+        </div>
+
+        <dialog class="fixed" id="helpDialog">
+            <p>
+                Baue Türme auf dein Spielfeld, um es zu verteidigen.<br>
+                Manche Türme können zusätzlich Verbessert werden, um sträker zu verteidigen.<br>
+                Sende Angreifer los, um die Verteidigung deines Gegners zu durchdringen.<br>
+                Jeder besiegte Angreifer gibt etwas Geld als Belohnung.
+                Kommt ein Angreifer bis in die Basis, verlierst du Leben!
+            </p>
+            <p>
+                Der Spieler, welcher als erster keine verbleibenden Leben mehr hat, verliert das Match!
+            </p>
+            <p>
+                Tipp: Baue mit den Türmen ein Labyrinth, damit die feindlichen Angreifer lange unterwegs sind.<br>
+                Tipp: Verkaufe alte Türme, um Geld für stärkere zurück zu bekommen.
+            </p>
+
+            <button id="closeHelp">Schließen</button>
+        </dialog>
+
+        <dialog class="fixed" id="newLobbyDialog">
+            <div>
+                <label for="newLobbyTitle">Lobby Titel</label>
+                <input id="newLobbyTitle" placeholder="lobbyname">
+            </div>
+
+            <div>
+                <label for="newLobbyMap">Karte</label>
+                <select id="newLobbyMap">
+                    <option value="0" selected>Mondbasis</option>
+                    <option value="1" >Area 51</option>
+                </select>
+            </div>
+
+            <button id="closeNewLobby">Abbrechen</button>
+            <button id="createNewLobby">Erstellen</button>
+        </dialog>
+
+        <dialog class="fixed" id="conLostDialog">
+
+            <h1>Verbindung getrennt</h1>
+            <p>Die Verbindung zum anderen Spieler wurde Beendet</p>
+
+            <button id="closeConLost">OK</button>
+        </dialog>
+
+        <dialog class="fixed" id="gameWonDialog">
+
+            <h1>Gewonnen!</h1>
+            <p>Du hast die Runde Gewonnen</p>
+
+            <button id="closeWon">Weiter</button>
+        </dialog>
+
+        <dialog class="fixed" id="gameLostDialog">
+
+            <h1>Verloren!</h1>
+            <p>Du hast die Runde Verloren</p>
+
+            <button id="closeLost">Weiter</button>
+        </dialog>
+
+        <dialog class="fixed" id="exitDialog">
+
+            <h1>Spiel verlassen</h1>
+            <p>Soll das Spiel beendet und die Verbindung<br> zum anderen Spieler beendet werden?</p>
+
+            <button id="exit">Ja</button>
+            <button id="closeExit">Abbrechen</button>
+        </dialog>
+
+
+        <script src="js/datachannel.js"></script>
+        <script src="js/rest.js"></script>
+        <script src="js/utils.js"></script>
+        <script src="js/setup.js"></script>
+        <script src="js/selection.js"></script>
+        <script src="js/maps.js"></script>
+        <script src="js/path.js"></script>
+        <script src="js/mobs.js"></script>
+        <script src="js/mobtypes.js"></script>
+        <script src="js/tower.js"></script>
+        <script src="js/towertypes.js"></script>
+        <script src="js/input.js"></script>
+        <script src="js/game.js"></script>
     </body>
 </html>

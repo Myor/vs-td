@@ -17,15 +17,9 @@ var PeerConnection = function (id, title, map) {
   this.isChannelOpen = false;
   this.isICEDone = false;
 
-  this._sendSignal = this._sendSignal.bind(this);
   this._onSignalMessage = this._onSignalMessage.bind(this);
-  this._createPeerConnection = this._createPeerConnection.bind(this);
-  this._sendOffer = this._sendOffer.bind(this);
-  this._handleOffer = this._handleOffer.bind(this);
-  this._handleAnswer = this._handleAnswer.bind(this);
-  this._iceCandidateCallback = this._iceCandidateCallback.bind(this);
-  this._handleIceCandidate = this._handleIceCandidate.bind(this);
-  this._receiveChannelCallback = this._receiveChannelCallback.bind(this);
+  this._onIceCandidate = this._onIceCandidate.bind(this);
+  this._onReceiveChannel = this._onReceiveChannel.bind(this);
   this._onMessageCallback = this._onMessageCallback.bind(this);
   this._dataChannelOpen = this._dataChannelOpen.bind(this);
   this._forceCloseAll = this._forceCloseAll.bind(this);
@@ -79,7 +73,7 @@ PeerConnection.prototype._onSignalMessage = function (event) {
 
 PeerConnection.prototype._createPeerConnection = function () {
   this.peerConnection = new RTCPeerConnection(configuration);
-  this.peerConnection.onicecandidate = this._iceCandidateCallback;
+  this.peerConnection.onicecandidate = this._onIceCandidate;
 };
 
 PeerConnection.prototype._sendOffer = function () {
@@ -111,7 +105,7 @@ PeerConnection.prototype._handleOffer = function (msg) {
 
   this._createPeerConnection();
 
-  this.peerConnection.ondatachannel = this._receiveChannelCallback;
+  this.peerConnection.ondatachannel = this._onReceiveChannel;
   var con = this;
 
   this.peerConnection.setRemoteDescription(sdp).then(function () {
@@ -133,7 +127,7 @@ PeerConnection.prototype._handleAnswer = function (msg) {
   this.peerConnection.setRemoteDescription(sdp).catch(this._forceCloseAll);
 };
 
-PeerConnection.prototype._iceCandidateCallback = function (event) {
+PeerConnection.prototype._onIceCandidate = function (event) {
   if (event.candidate) {
     this._sendSignal({
       action: "ice-candidate",
@@ -147,10 +141,11 @@ PeerConnection.prototype._iceCandidateCallback = function (event) {
 };
 
 PeerConnection.prototype._handleIceCandidate = function (msg) {
-  this.peerConnection.addIceCandidate(new RTCIceCandidate(msg.candidate)).catch(this._forceCloseAll);
+  var candidate = new RTCIceCandidate(msg.candidate);
+  this.peerConnection.addIceCandidate(candidate).catch(this._forceCloseAll);
 };
 
-PeerConnection.prototype._receiveChannelCallback = function (event) {
+PeerConnection.prototype._onReceiveChannel = function (event) {
   console.log("Got data channel");
   this.dataChannel = event.channel;
   this.dataChannel.onmessage = this._onMessageCallback;
@@ -159,7 +154,6 @@ PeerConnection.prototype._receiveChannelCallback = function (event) {
 };
 
 PeerConnection.prototype._onMessageCallback = function (event) {
-
   var msg = JSON.parse(event.data);
 
   this.emit(msg.e, msg.a1, msg.a2, msg.a3);
@@ -175,10 +169,13 @@ PeerConnection.prototype._dataChannelOpen = function () {
 
 PeerConnection.prototype._closeWebsocket = function () {
   if (this.isChannelOpen && this.isICEDone && this.ws !== null) {
+    var ws = this.ws;
     this.ws.onmessage = null;
     this.ws.onclose = null;
-//    this.ws.close();
-//    this.ws = null;
+    this.ws = null;
+    setTimeout(function () {
+      ws.close();
+    }, 1000);
   }
 };
 
@@ -200,9 +197,10 @@ PeerConnection.prototype.sendEvent = function (eventName, a1, a2, a3) {
 };
 
 PeerConnection.prototype.pipeEvent = function (emiter, eventName) {
+  var connection = this;
   emiter.on(eventName, function (a1, a2, a3) {
-    this.sendEvent(eventName, a1, a2, a3);
-  }.bind(this));
+    connection.sendEvent(eventName, a1, a2, a3);
+  });
 };
 
 PeerConnection.prototype.close = function () {
