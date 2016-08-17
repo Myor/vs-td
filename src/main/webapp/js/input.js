@@ -295,10 +295,6 @@ var ui = {};
     helpDialogEl.close();
   });
 
-  function visibleHandler() {
-    console.log(document.hidden);
-  }
-
   // ====== Klick auf Spielfend ======
   function clickHandler(e) {
     // Nur bei Linksklick
@@ -407,7 +403,9 @@ var ui = {};
   // Versuchen einen Tower zu setzen
   function tryPlace(cx, cy) {
     if (game.fieldRect.contains(cx, cy)) {
-      game.local.buyTowerAt(placeType, cx, cy);
+      if(game.local.buyTowerAt(placeType, cx, cy)) {
+        endPlace();
+      }
     }
   }
 

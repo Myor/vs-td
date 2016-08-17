@@ -7,7 +7,7 @@ Game.prototype.buyTowerAt = function (typeID, cx, cy) {
           || this.collGrid.getTowerAt(cx, cy) !== null
           || utils.isStart(cx, cy)
           || utils.isFinish(cx, cy)) {
-    return;
+    return false;
   }
   var type = towerTypes[typeID];
 
@@ -22,10 +22,11 @@ Game.prototype.buyTowerAt = function (typeID, cx, cy) {
     }
   }
   // Preis zahlen
-  if (!this.hasCash(type.price)) return;
+  if (!this.hasCash(type.price)) return false;
   this.removeCash(type.price);
 
   this.emit("addTower", typeID, cx, cy);
+  return true;
 };
 
 // Setzt Tower ohne Einschränkungen zu prüfen
