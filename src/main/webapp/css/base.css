@@ -17,6 +17,9 @@ body {
     margin: 0;
     background-color: #EFEFEF;
 }
+template {
+    display: none;
+}
 
 dialog {
     border: 1px solid rgba(0, 0, 0, 0.5);

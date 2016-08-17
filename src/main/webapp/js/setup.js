@@ -1,6 +1,15 @@
 "use strict";
 
 document.addEventListener("DOMContentLoaded", function () {
+
+  // Browser muss fetch und WebRTC haben
+  if (!window.fetch || !window.RTCPeerConnection) {
+    var h1 = document.createElement("h1");
+    h1.textContent = "Dieser Browser ist nicht unterstüzt!";
+    document.body.appendChild(h1);
+    return;
+  }
+
   PIXI.loader
           .add("mobs", "assets/mobSheet32.png")
           .add("mobBar", "assets/mobBar.png")
@@ -352,14 +361,14 @@ game.texFromCache = function (img, x, y, w, h) {
 game.setupPriceList = function () {
   towerTypes.forEach(function (type, i) {
     var el = document.querySelector("button.tower[data-type='" + i + "']");
-    if(el != null) {
+    if (el != null) {
       el.dataset.price = "$" + type.price;
     }
   });
-  
+
   mobTypes.forEach(function (type, i) {
     var el = document.querySelector("button.mob[data-type='" + i + "']");
-    if(el != null) {
+    if (el != null) {
       el.dataset.price = "$" + type.price;
     }
   });

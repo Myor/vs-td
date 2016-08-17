@@ -1,6 +1,6 @@
 "use strict";
 
-var RTCPeerConnection = window.webkitRTCPeerConnection || window.RTCPeerConnection;
+window.RTCPeerConnection = window.webkitRTCPeerConnection || window.RTCPeerConnection;
 
 var configuration = {
   iceServers: [{
